@@ -24,6 +24,37 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      # Esta verificacao existe porque a falha ja aconteceu: a regra "data/" do
+      # .gitignore, feita para o banco na raiz, casou tambem com src/data/ e
+      # deixou dois arquivos de codigo-fonte fora do repositorio. O projeto
+      # rodava na maquina de quem escreveu e quebrava em qualquer clone novo.
+      - name: Conferir que nenhum codigo-fonte esta sendo ignorado pelo Git
+        run: |
+          IGNORADOS=$(git ls-files --others --ignored --exclude-standard --directory \
+            | grep -E '^(src|bin|public|test|scripts|exemplos)/' || true)
+          if [ -n "$IGNORADOS" ]; then
+            echo "Arquivos de codigo-fonte estao no .gitignore e nunca chegariam ao repositorio:"
+            echo "$IGNORADOS"
+            echo ""
+            echo "Ancore a regra do .gitignore com barra inicial (/data/ em vez de data/)."
+            exit 1
+          fi
+          echo "Nenhum codigo-fonte ignorado."
+
+      # O projeto precisa funcionar a partir de um clone limpo, nao da pasta de
+      # trabalho de quem o escreveu. Um clone raso do proprio commit prova isso.
+      - name: Conferir que um clone limpo tem todos os arquivos necessarios
+        run: |
+          git clone --depth 1 "file://$PWD" /tmp/clone-limpo
+          cd /tmp/clone-limpo
+          for ARQUIVO in src/index.js src/data/taxonomy.js src/data/gerador.js \
+                         src/core/scoring.js src/store/repositorio.js \
+                         src/server/servidor.js bin/prospecto.js public/index.html; do
+            test -f "$ARQUIVO" || { echo "Faltando no clone: $ARQUIVO"; exit 1; }
+          done
+          npm test
+          echo "Clone limpo roda a suite completa."
+
       - name: Conferir que o projeto nao tem dependencias
         run: |
           node -e "
