@@ -11,7 +11,8 @@ import { priorizar, montarFilaDoDia, resumirCarteira, ESTAGIOS } from '../core/p
 import { projetarPipeline } from '../core/previsao.js';
 import { gerarCadencia } from '../core/cadencia.js';
 import { avaliarLead } from '../core/scoring.js';
-import { ErroDeValidacao } from '../core/icp.js';
+import { ErroDeValidacao, ICP_PADRAO } from '../core/icp.js';
+import { gerarCarteira } from '../data/gerador.js';
 import { SETORES, REGIOES, SINAIS, CARGOS, SINAL_POR_ID } from '../data/taxonomy.js';
 import { escreverCsv } from '../lib/csv.js';
 
@@ -52,6 +53,33 @@ export function montarApi(repositorio, opcoes = {}) {
   };
 
   roteador.get('/api/saude', () => ({ status: 'ok', leads: repositorio.contarLeads(), versao: opcoes.versao ?? '1.0.0' }));
+
+  // O painel consulta isto na abertura para saber se deve exibir o aviso de
+  // dados ficticios e o botao de restaurar a demonstracao.
+  roteador.get('/api/modo', () => ({
+    demo: Boolean(opcoes.modoDemo),
+    semente: opcoes.modoDemo ? (opcoes.sementeDemo ?? 'prospecto') : null,
+  }));
+
+  if (opcoes.modoDemo) {
+    /**
+     * Restaura a carteira de demonstracao.
+     *
+     * Numa demo publica qualquer visitante pode mexer no ICP e nos estagios. Sem
+     * uma forma de voltar ao estado inicial, a primeira pessoa que brincar com os
+     * pesos estraga a demonstracao para todas as seguintes.
+     */
+    roteador.post('/api/demo/restaurar', () => {
+      repositorio.removerTodos();
+      repositorio.salvarIcp(ICP_PADRAO);
+      repositorio.salvarLeads(gerarCarteira({
+        quantidade: opcoes.quantidadeDemo ?? 300,
+        semente: opcoes.sementeDemo ?? 'prospecto',
+      }));
+      cache.invalidar();
+      return { restaurado: true, leads: repositorio.contarLeads() };
+    });
+  }
 
   roteador.get('/api/meta', () => ({
     setores: SETORES, regioes: REGIOES, sinais: SINAIS, cargos: CARGOS, estagios: ESTAGIOS,

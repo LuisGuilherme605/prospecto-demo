@@ -50,6 +50,14 @@ async function api(caminho, opcoes = {}) {
     ...opcoes,
     body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined,
   });
+  // Sessao expirada enquanto a aba estava aberta: mandar de volta ao login e
+  // preservar a pagina atual, para o usuario voltar exatamente onde estava.
+  if (resposta.status === 401) {
+    const destino = encodeURIComponent(location.pathname + location.search);
+    location.replace(`/login?destino=${destino}`);
+    throw new Error('Sessao expirada');
+  }
+
   const dados = await resposta.json().catch(() => null);
   if (!resposta.ok) {
     const erro = new Error(dados?.erro ?? `Falha na requisicao (${resposta.status})`);
@@ -632,6 +640,59 @@ function comAtraso(funcao, atraso = 260) {
   };
 }
 
+/**
+ * Faixa de demonstracao.
+ *
+ * Numa demo publica o visitante precisa saber, sem precisar perguntar, que os
+ * dados nao sao de empresas reais -- e precisa de um jeito de desfazer o que
+ * mexeu, para nao estragar a demonstracao de quem vier depois.
+ */
+async function configurarModoDemo() {
+  const modo = await api('/api/modo').catch(() => ({ demo: false }));
+  if (!modo.demo) return;
+
+  const botaoRestaurar = el('button', {
+    class: 'botao botao--claro',
+    texto: 'Restaurar demonstracao',
+    onclick: async (evento) => {
+      const botao = evento.currentTarget;
+      botao.disabled = true;
+      botao.textContent = 'Restaurando...';
+      try {
+        await api('/api/demo/restaurar', { method: 'POST' });
+        estado.filtros.pagina = 1;
+        await carregarTudo();
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Restaurar demonstracao';
+      }
+    },
+  });
+
+  document.body.prepend(el('div', { class: 'faixa-demo', role: 'status' },
+    el('strong', { texto: 'Demonstracao' }),
+    el('span', { texto: 'Todos os leads, contatos e telefones desta tela sao ficticios, gerados por algoritmo. Nenhuma empresa ou pessoa real aparece aqui.' }),
+    botaoRestaurar));
+  document.body.classList.add('com-faixa-demo');
+}
+
+/** O botao de sair so faz sentido quando ha sessao para encerrar. */
+async function configurarSaida() {
+  try {
+    const sessao = await api('/api/sessao');
+    if (!sessao.protecaoAtiva) return;
+
+    $('#topo-acoes').prepend(el('button', {
+      class: 'botao',
+      texto: 'Sair',
+      onclick: async () => {
+        await fetch('/api/sessao', { method: 'DELETE' });
+        location.replace('/login');
+      },
+    }));
+  } catch { /* sem protecao configurada: nada a fazer */ }
+}
+
 function ligarEventos() {
   $('#btn-tema').addEventListener('click', alternarTema);
   $('#btn-icp').addEventListener('click', () => abrirEditorIcp().catch((erro) => alert(erro.message)));
@@ -684,7 +745,7 @@ async function iniciar() {
     estado.metadados = await api('/api/meta');
     preencherSelects();
     ligarEventos();
-    await carregarTudo();
+    await Promise.all([carregarTudo(), configurarSaida(), configurarModoDemo()]);
   } catch (erro) {
     document.querySelector('main').replaceChildren(
       el('div', { class: 'cartao' },

@@ -1,0 +1,35 @@
+# Publicacao gratuita no Render, em modo demonstracao.
+#
+# Este arquivo e um "blueprint": ao conectar o repositorio, o Render le tudo daqui
+# e nao ha nada para configurar na interface.
+#
+# Importante: o plano gratuito NAO tem disco persistente. Aqui isso nao e um
+# problema -- e ate conveniente. A carteira e sintetica e o app a regenera sozinho
+# sempre que sobe, entao cada reinicio devolve a demonstracao ao estado original.
+#
+# Para uso real, com leads de verdade, este arquivo NAO serve: seria preciso um
+# plano com disco e PROSPECTO_SENHA em vez do modo demonstracao. Veja DEPLOY.md.
+
+services:
+  - type: web
+    name: prospecto-demo
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /api/saude
+
+    envVars:
+      # Libera o acesso sem senha e exibe o aviso de dados ficticios no painel.
+      # So e seguro porque a carteira e gerada por algoritmo: nao ha dado de
+      # pessoa real para vazar.
+      - key: PROSPECTO_MODO_DEMO
+        value: "1"
+
+      # O Render termina o TLS na borda e encaminha em HTTP; sem isto o servidor
+      # acharia que a conexao e insegura.
+      - key: PROSPECTO_ATRAS_DE_PROXY
+        value: "1"
+
+      # Tamanho da carteira de demonstracao.
+      - key: PROSPECTO_QUANTIDADE
+        value: "300"

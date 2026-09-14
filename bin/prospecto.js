@@ -16,14 +16,15 @@ import { projetarPipeline } from '../src/core/previsao.js';
 import { gerarCadencia } from '../src/core/cadencia.js';
 import { descreverIcp, ErroDeValidacao } from '../src/core/icp.js';
 import { criarServidor } from '../src/server/servidor.js';
+import { exigirConfiguracaoSegura } from '../src/server/autenticacao.js';
 import { lerCsv, escreverCsv } from '../src/lib/csv.js';
 import { deduplicar } from '../src/lib/dedup.js';
 import { SETOR_POR_ID, REGIAO_POR_ID, CARGO_POR_ID } from '../src/data/taxonomy.js';
 import { cor, COR_TIER, tabela, barra, titulo, moeda } from '../src/lib/terminal.js';
 
 const OPCOES = {
-  banco: { type: 'string', default: 'data/prospecto.db' },
-  quantidade: { type: 'string', default: '200' },
+  banco: { type: 'string', default: process.env.PROSPECTO_BANCO ?? 'data/prospecto.db' },
+  quantidade: { type: 'string', default: process.env.PROSPECTO_QUANTIDADE ?? '200' },
   semente: { type: 'string', default: 'prospecto' },
   limite: { type: 'string', default: '20' },
   capacidade: { type: 'string', default: '25' },
@@ -32,7 +33,11 @@ const OPCOES = {
   estagio: { type: 'string' },
   meta: { type: 'string', default: '0' },
   horizonte: { type: 'string', default: '90' },
-  porta: { type: 'string', default: '3000' },
+  // As plataformas de hospedagem injetam a porta via ambiente e esperam que o
+  // processo escute nela; ignorar PORT e a causa numero um de "deploy no ar mas
+  // nao responde". A flag continua valendo mais que o ambiente, para uso local.
+  porta: { type: 'string', default: process.env.PORT ?? '3000' },
+  host: { type: 'string', default: process.env.HOST ?? '0.0.0.0' },
   remetente: { type: 'string', default: 'Luis' },
   empresa: { type: 'string', default: 'Prospecto' },
   saida: { type: 'string' },
@@ -72,7 +77,8 @@ ${cor.negrito('OPCOES')}
   --estagio <id>           Filtra por estagio do funil
   --meta <valor>           Meta de receita para o comando "previsao"
   --horizonte <dias>       Janela da previsao (padrao: 90)
-  --porta <n>              Porta do servidor (padrao: 3000)
+  --porta <n>              Porta do servidor (padrao: 3000, ou $PORT)
+  --host <endereco>        Interface de escuta (padrao: 0.0.0.0, ou $HOST)
   --remetente <nome>       Assinatura usada na cadencia
   --empresa <nome>         Empresa remetente usada na cadencia
   --saida <arquivo>        Arquivo de destino em "exportar"
@@ -87,6 +93,22 @@ ${cor.negrito('EXEMPLOS')}
   prospecto cadencia LD-00042 --remetente "Luis Guilherme"
   prospecto previsao --meta 1500000 --horizonte 120
   prospecto servir --porta 3000
+
+${cor.negrito('VARIAVEIS DE AMBIENTE')}
+  PORT                     Porta do servidor
+  HOST                     Interface de escuta
+  PROSPECTO_BANCO          Caminho do arquivo SQLite
+  PROSPECTO_SENHA          Senha do painel (obrigatoria fora do localhost)
+  PROSPECTO_SEGREDO        Chave de assinatura da sessao; sem ela, as sessoes
+                           caem a cada reinicio do processo
+  PROSPECTO_ATRAS_DE_PROXY Defina como 1 quando houver proxy HTTPS na frente
+                           (Caddy, Nginx, roteador da plataforma)
+  PROSPECTO_SESSAO_HORAS   Validade da sessao (padrao: 12)
+  PROSPECTO_QUANTIDADE     Tamanho da carteira gerada quando o banco esta vazio
+  PROSPECTO_MODO_DEMO      Defina como 1 para uma demonstracao publica sem
+                           senha. So use com a carteira sintetica: o painel
+                           exibe aviso de dados ficticios e libera o botao de
+                           restaurar a demonstracao
 `;
 
 async function principal() {
@@ -557,18 +579,46 @@ async function exportar(opcoes) {
 }
 
 async function servir(opcoes) {
+  const porta = Number(opcoes.porta);
+  const host = opcoes.host;
+  const senha = process.env.PROSPECTO_SENHA || null;
+  const modoDemo = process.env.PROSPECTO_MODO_DEMO === '1';
+
+  // Falha antes de abrir o socket: subir exposto e sem senha e pior que nao subir.
+  exigirConfiguracaoSegura({ host, senha, modoDemo });
+
   const repositorio = new Repositorio(opcoes.banco);
   if (repositorio.contarLeads() === 0) {
     console.log(cor.amarelo('Banco vazio: gerando uma carteira de exemplo para o painel nao abrir em branco.'));
     repositorio.salvarLeads(gerarCarteira({ quantidade: Number(opcoes.quantidade), semente: opcoes.semente }));
   }
 
-  const porta = Number(opcoes.porta);
-  const servidor = criarServidor(repositorio, { log: false });
+  const servidor = criarServidor(repositorio, {
+    log: process.env.PROSPECTO_LOG !== '0',
+    senha,
+    modoDemo,
+    sementeDemo: opcoes.semente,
+    quantidadeDemo: Number(opcoes.quantidade),
+    segredoSessao: process.env.PROSPECTO_SEGREDO,
+    confiarProxy: process.env.PROSPECTO_ATRAS_DE_PROXY === '1',
+    duracaoSessaoHoras: Number(process.env.PROSPECTO_SESSAO_HORAS) || 12,
+  });
 
-  servidor.listen(porta, () => {
-    console.log(`\n${cor.negrito('Prospecto')} rodando em ${cor.ciano(`http://localhost:${porta}`)}`);
+  servidor.listen(porta, host, () => {
+    const endereco = host === '0.0.0.0' ? 'localhost' : host;
+    console.log(`\n${cor.negrito('Prospecto')} rodando em ${cor.ciano(`http://${endereco}:${porta}`)}`);
     console.log(cor.cinza(`${repositorio.contarLeads()} leads carregados de ${opcoes.banco}`));
+    if (modoDemo) {
+      console.log(cor.amarelo('MODO DEMONSTRACAO: acesso aberto, carteira 100% ficticia.'));
+      console.log(cor.cinza('Nao use este modo com dados reais de clientes.'));
+    } else {
+      console.log(senha
+        ? cor.verde('Acesso protegido por senha.')
+        : cor.amarelo('Sem senha: acessivel so pelo localhost.'));
+    }
+    if (senha && !process.env.PROSPECTO_SEGREDO) {
+      console.log(cor.amarelo('Aviso: PROSPECTO_SEGREDO nao definida; as sessoes cairao a cada reinicio.'));
+    }
     console.log(cor.cinza('Ctrl+C para encerrar\n'));
   });
 
@@ -582,13 +632,19 @@ async function servir(opcoes) {
     throw erro;
   });
 
-  // Encerramento limpo: fechar o banco evita deixar arquivo WAL pendurado.
+  // Encerramento limpo: o orquestrador manda SIGTERM antes de derrubar o
+  // container, e fechar o banco evita deixar arquivo WAL pendurado no volume.
+  let encerrando = false;
   const encerrar = () => {
+    if (encerrando) return;
+    encerrando = true;
     console.log(cor.cinza('\nEncerrando...'));
     servidor.close(() => {
       repositorio.fechar();
       process.exit(0);
     });
+    // Rede de seguranca: conexao presa nao pode travar o desligamento.
+    setTimeout(() => process.exit(0), 10_000).unref();
   };
   process.on('SIGINT', encerrar);
   process.on('SIGTERM', encerrar);
