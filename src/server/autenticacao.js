@@ -214,11 +214,16 @@ const ENDERECOS_LOCAIS = new Set(['127.0.0.1', 'localhost', '::1']);
  * senha significa expor a carteira inteira, com dados pessoais, a quem achar a
  * URL. O processo falha na inicializacao em vez de subir vulneravel.
  *
+ * A unica excecao e o modo demonstracao, em que a carteira e inteiramente
+ * sintetica e gerada na hora -- nao ha dado de pessoa real para vazar. Quem
+ * liga esse modo precisa faze-lo explicitamente, e o painel passa a exibir um
+ * aviso permanente de que os dados sao ficticios.
+ *
  * @throws {Error} quando a combinacao host/senha e insegura
  */
-export function exigirConfiguracaoSegura({ host, senha }) {
+export function exigirConfiguracaoSegura({ host, senha, modoDemo = false }) {
   const ehLocal = ENDERECOS_LOCAIS.has(host);
-  if (ehLocal || senha) return;
+  if (ehLocal || senha || modoDemo) return;
 
   throw new Error(
     `Recusando iniciar: o servidor escutaria em ${host} (acessivel pela rede) sem senha.\n`
@@ -226,7 +231,9 @@ export function exigirConfiguracaoSegura({ host, senha }) {
     + 'Defina a senha na variavel de ambiente PROSPECTO_SENHA:\n'
     + '  PROSPECTO_SENHA="sua-senha-forte" prospecto servir\n\n'
     + 'Para uso apenas local, escute em 127.0.0.1:\n'
-    + '  prospecto servir --host 127.0.0.1',
+    + '  prospecto servir --host 127.0.0.1\n\n'
+    + 'Para uma demonstracao publica com dados ficticios (sem dado real de pessoa):\n'
+    + '  PROSPECTO_MODO_DEMO=1 prospecto servir',
   );
 }
 

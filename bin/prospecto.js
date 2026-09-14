@@ -24,7 +24,7 @@ import { cor, COR_TIER, tabela, barra, titulo, moeda } from '../src/lib/terminal
 
 const OPCOES = {
   banco: { type: 'string', default: process.env.PROSPECTO_BANCO ?? 'data/prospecto.db' },
-  quantidade: { type: 'string', default: '200' },
+  quantidade: { type: 'string', default: process.env.PROSPECTO_QUANTIDADE ?? '200' },
   semente: { type: 'string', default: 'prospecto' },
   limite: { type: 'string', default: '20' },
   capacidade: { type: 'string', default: '25' },
@@ -104,6 +104,11 @@ ${cor.negrito('VARIAVEIS DE AMBIENTE')}
   PROSPECTO_ATRAS_DE_PROXY Defina como 1 quando houver proxy HTTPS na frente
                            (Caddy, Nginx, roteador da plataforma)
   PROSPECTO_SESSAO_HORAS   Validade da sessao (padrao: 12)
+  PROSPECTO_QUANTIDADE     Tamanho da carteira gerada quando o banco esta vazio
+  PROSPECTO_MODO_DEMO      Defina como 1 para uma demonstracao publica sem
+                           senha. So use com a carteira sintetica: o painel
+                           exibe aviso de dados ficticios e libera o botao de
+                           restaurar a demonstracao
 `;
 
 async function principal() {
@@ -577,9 +582,10 @@ async function servir(opcoes) {
   const porta = Number(opcoes.porta);
   const host = opcoes.host;
   const senha = process.env.PROSPECTO_SENHA || null;
+  const modoDemo = process.env.PROSPECTO_MODO_DEMO === '1';
 
   // Falha antes de abrir o socket: subir exposto e sem senha e pior que nao subir.
-  exigirConfiguracaoSegura({ host, senha });
+  exigirConfiguracaoSegura({ host, senha, modoDemo });
 
   const repositorio = new Repositorio(opcoes.banco);
   if (repositorio.contarLeads() === 0) {
@@ -590,6 +596,9 @@ async function servir(opcoes) {
   const servidor = criarServidor(repositorio, {
     log: process.env.PROSPECTO_LOG !== '0',
     senha,
+    modoDemo,
+    sementeDemo: opcoes.semente,
+    quantidadeDemo: Number(opcoes.quantidade),
     segredoSessao: process.env.PROSPECTO_SEGREDO,
     confiarProxy: process.env.PROSPECTO_ATRAS_DE_PROXY === '1',
     duracaoSessaoHoras: Number(process.env.PROSPECTO_SESSAO_HORAS) || 12,
@@ -599,9 +608,14 @@ async function servir(opcoes) {
     const endereco = host === '0.0.0.0' ? 'localhost' : host;
     console.log(`\n${cor.negrito('Prospecto')} rodando em ${cor.ciano(`http://${endereco}:${porta}`)}`);
     console.log(cor.cinza(`${repositorio.contarLeads()} leads carregados de ${opcoes.banco}`));
-    console.log(senha
-      ? cor.verde('Acesso protegido por senha.')
-      : cor.amarelo('Sem senha: acessivel so pelo localhost.'));
+    if (modoDemo) {
+      console.log(cor.amarelo('MODO DEMONSTRACAO: acesso aberto, carteira 100% ficticia.'));
+      console.log(cor.cinza('Nao use este modo com dados reais de clientes.'));
+    } else {
+      console.log(senha
+        ? cor.verde('Acesso protegido por senha.')
+        : cor.amarelo('Sem senha: acessivel so pelo localhost.'));
+    }
     if (senha && !process.env.PROSPECTO_SEGREDO) {
       console.log(cor.amarelo('Aviso: PROSPECTO_SEGREDO nao definida; as sessoes cairao a cada reinicio.'));
     }

@@ -22,6 +22,11 @@ oferecem.
 > Preços e camadas gratuitas mudam com frequência. Confira na fonte antes de
 > escolher; o que está escrito aqui pode ter mudado desde que foi escrito.
 
+> **É só para portfólio?** Então a restrição acima não se aplica: a carteira é
+> sintética e o app a regenera a cada reinício, então disco efêmero deixa de ser
+> problema e o plano gratuito do Render passa a servir, sem cartão de crédito.
+> Veja **[DEMO-GRATIS.md](DEMO-GRATIS.md)**.
+
 **A opção gratuita de verdade é a Oracle Cloud Always Free**: VM ARM com 24 GB de
 RAM e 200 GB de disco, gratuita por tempo indeterminado, sempre ligada, sem
 hibernação. É o caminho A abaixo.
