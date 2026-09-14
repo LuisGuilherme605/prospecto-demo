@@ -1,0 +1,9 @@
+empresa;dominio;setor;funcionarios;receita;regiao;cidade;contato;cargo;email;telefone;tecnologias;maturidade;estagio
+Ferragens Norte Ltda;www.ferragensnorte.com.br;industria;180;34000000;sul;Joinville;Marcos Vieira;cro;marcos@ferragensnorte.com.br;+55 47 99812-3344;totvs|power-bi;3;novo
+FERRAGENS NORTE;ferragensnorte.com.br;industria;180;34000000;sul;Joinville;Marcos Vieira;cro;marcos.vieira@ferragensnorte.com.br;;sap;3;contatado
+Clinica Vida Plena;vidaplena.med.br;saude;62;11500000;sudeste;Campinas;Patricia Nunes;coo;patricia@vidaplena.med.br;+55 19 99771-2210;rd-station|zapier;4;novo
+"Log Express, Transportes";logexpress.com.br;logistica;240;58000000;sudeste;Sao Paulo;Rodrigo Tavares;head_vendas;rodrigo@logexpress.com.br;;pipedrive|whatsapp-business|metabase;4;contatado
+Escola Novo Saber;novosaber.edu.br;educacao;95;9800000;nordeste;Recife;Luciana Mendes;cmo;luciana@novosaber.edu.br;+55 81 98822-1177;rd-station;3;novo
+Oficina Digital ME;oficinadigital.com.br;servicos;8;900000;centro_oeste;Goiania;Tiago Prado;ceo;tiago@oficinadigital.com.br;;;2;novo
+Mercado Sul SA;mercadosul.com.br;ecommerce;410;96000000;sul;Porto Alegre;Beatriz Lemos;cto;beatriz@mercadosul.com.br;+55 51 99663-4455;vtex|salesforce|segment|aws;5;engajado
+Agro Campos;agrocampos.agr.br;agro;320;74000000;centro_oeste;Cuiaba;Helio Barros;coo;helio@agrocampos.agr.br;;sap;2;novo
