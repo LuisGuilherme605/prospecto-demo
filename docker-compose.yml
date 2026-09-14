@@ -1,0 +1,46 @@
+# Prospecto em producao, com HTTPS automatico.
+#
+# Dois servicos: o app (sem porta exposta ao mundo) e o Caddy, que termina TLS e
+# encaminha. O Caddy obtem e renova o certificado Let's Encrypt sozinho -- nao ha
+# certbot, nem cron de renovacao, nem certificado vencendo num domingo.
+#
+# Subir:
+#   cp .env.exemplo .env   # edite DOMINIO, EMAIL e PROSPECTO_SENHA
+#   docker compose up -d
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      PROSPECTO_SENHA: ${PROSPECTO_SENHA:?defina PROSPECTO_SENHA no arquivo .env}
+      PROSPECTO_SEGREDO: ${PROSPECTO_SEGREDO:?defina PROSPECTO_SEGREDO no arquivo .env}
+      PROSPECTO_SESSAO_HORAS: ${PROSPECTO_SESSAO_HORAS:-12}
+      PROSPECTO_ATRAS_DE_PROXY: "1"
+    volumes:
+      - dados:/dados
+    # Sem `ports`: o app so e alcancavel pelo Caddy, na rede interna. Isso fecha
+    # o acesso direto por HTTP na porta 3000, que contornaria o TLS.
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?defina DOMINIO no arquivo .env}
+      EMAIL: ${EMAIL:?defina EMAIL no arquivo .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  dados:
+  caddy_dados:
+  caddy_config:

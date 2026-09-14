@@ -50,6 +50,14 @@ async function api(caminho, opcoes = {}) {
     ...opcoes,
     body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined,
   });
+  // Sessao expirada enquanto a aba estava aberta: mandar de volta ao login e
+  // preservar a pagina atual, para o usuario voltar exatamente onde estava.
+  if (resposta.status === 401) {
+    const destino = encodeURIComponent(location.pathname + location.search);
+    location.replace(`/login?destino=${destino}`);
+    throw new Error('Sessao expirada');
+  }
+
   const dados = await resposta.json().catch(() => null);
   if (!resposta.ok) {
     const erro = new Error(dados?.erro ?? `Falha na requisicao (${resposta.status})`);
@@ -632,6 +640,23 @@ function comAtraso(funcao, atraso = 260) {
   };
 }
 
+/** O botao de sair so faz sentido quando ha sessao para encerrar. */
+async function configurarSaida() {
+  try {
+    const sessao = await api('/api/sessao');
+    if (!sessao.protecaoAtiva) return;
+
+    $('#topo-acoes').prepend(el('button', {
+      class: 'botao',
+      texto: 'Sair',
+      onclick: async () => {
+        await fetch('/api/sessao', { method: 'DELETE' });
+        location.replace('/login');
+      },
+    }));
+  } catch { /* sem protecao configurada: nada a fazer */ }
+}
+
 function ligarEventos() {
   $('#btn-tema').addEventListener('click', alternarTema);
   $('#btn-icp').addEventListener('click', () => abrirEditorIcp().catch((erro) => alert(erro.message)));
@@ -684,7 +709,7 @@ async function iniciar() {
     estado.metadados = await api('/api/meta');
     preencherSelects();
     ligarEventos();
-    await carregarTudo();
+    await Promise.all([carregarTudo(), configurarSaida()]);
   } catch (erro) {
     document.querySelector('main').replaceChildren(
       el('div', { class: 'cartao' },
