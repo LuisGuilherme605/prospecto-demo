@@ -5,6 +5,9 @@ crédito e sem servidor para administrar**.
 
 **Tempo:** cerca de 10 minutos.
 
+> 🔗 **Demonstração no ar:** https://teste1-k71r.onrender.com
+
+
 ---
 
 ## Por que aqui a regra muda
@@ -34,7 +37,7 @@ real ali. Para esse caso existe o `PROSPECTO_MODO_DEMO=1`, que:
   mexeu e não estragar a demo de quem vier depois
 
 Nunca use esse modo com leads de verdade. O guia para uso real é o
-[DEPLOY.md](DEPLOY.md).
+[DEPLOY.md](deploy.md).
 
 ---
 
@@ -141,6 +144,6 @@ Quando sair do portfólio e for usar com leads de verdade, mude três coisas:
 1. **Tire o `PROSPECTO_MODO_DEMO`** e defina `PROSPECTO_SENHA`
 2. **Adicione disco persistente** (plano pago do Render, volume no Fly, ou VPS) —
    senão os leads importados somem no próximo reinício
-3. **Configure backup** — veja [DEPLOY.md](DEPLOY.md)
+3. **Configure backup** — veja [DEPLOY.md](deploy.md)
 
 O código é o mesmo; só a configuração muda.
