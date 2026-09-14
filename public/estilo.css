@@ -662,3 +662,54 @@ tbody tr:focus-visible { outline: 2px solid var(--acento); outline-offset: -2px;
   line-height: 1.5;
   color: var(--texto-3);
 }
+
+/* -------------------------------------------------------------- demonstracao */
+
+/*
+ * A faixa de demonstracao e deliberadamente impossivel de ignorar: fica no topo
+ * de tudo, em cor de aviso, e nao desaparece com a rolagem. Um visitante que
+ * confunda dados ficticios com carteira real tira a conclusao errada sobre o
+ * produto -- e sobre quem o construiu.
+ */
+.faixa-demo {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 9px 20px;
+  background: color-mix(in srgb, var(--atencao) 20%, var(--surface-1));
+  border-bottom: 1px solid color-mix(in srgb, var(--atencao) 45%, transparent);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--texto-1);
+}
+.faixa-demo strong {
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: var(--texto-1);
+  color: var(--surface-1);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.faixa-demo span { flex: 1 1 260px; min-width: 0; }
+
+.botao--claro {
+  padding: 5px 11px;
+  font-size: 12px;
+  background: var(--surface-1);
+  border-color: var(--borda-forte);
+  flex-shrink: 0;
+}
+
+/* A faixa empurra o cabecalho fixo para baixo, senao um cobre o outro. */
+.com-faixa-demo .topo { top: 0; }
+
+@media (max-width: 720px) {
+  .faixa-demo { padding: 8px 14px; font-size: 12px; }
+}

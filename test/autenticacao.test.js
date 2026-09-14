@@ -325,6 +325,103 @@ describe('servidor protegido', () => {
   });
 });
 
+describe('modo demonstracao', () => {
+  test('permite subir exposto sem senha, e so nesse modo', () => {
+    // A guarda existe para proteger dado pessoal. Numa carteira 100% sintetica
+    // nao ha dado de pessoa real, entao a excecao e legitima -- mas precisa ser
+    // explicita, nunca o padrao.
+    assert.throws(() => exigirConfiguracaoSegura({ host: '0.0.0.0', senha: null }));
+    assert.doesNotThrow(() => exigirConfiguracaoSegura({ host: '0.0.0.0', senha: null, modoDemo: true }));
+  });
+
+  test('a mensagem de recusa ensina as tres saidas', () => {
+    try {
+      exigirConfiguracaoSegura({ host: '0.0.0.0', senha: null });
+      assert.fail('deveria ter lancado');
+    } catch (erro) {
+      assert.match(erro.message, /PROSPECTO_SENHA/);
+      assert.match(erro.message, /127\.0\.0\.1/);
+      assert.match(erro.message, /PROSPECTO_MODO_DEMO/);
+    }
+  });
+
+  describe('servidor em modo demo', () => {
+    let servidor;
+    let repositorio;
+    let base;
+
+    before(async () => {
+      repositorio = new Repositorio(':memory:');
+      repositorio.salvarLeads(gerarCarteira({ quantidade: 40, semente: 'demo' }));
+      servidor = criarServidor(repositorio, {
+        log: false, senha: null, modoDemo: true, sementeDemo: 'demo', quantidadeDemo: 40,
+      });
+      await new Promise((r) => servidor.listen(0, '127.0.0.1', r));
+      base = `http://127.0.0.1:${servidor.address().port}`;
+    });
+
+    after(async () => {
+      await new Promise((r) => servidor.close(r));
+      repositorio.fechar();
+    });
+
+    test('anuncia o modo para o painel exibir o aviso', async () => {
+      const modo = await (await fetch(`${base}/api/modo`)).json();
+      assert.equal(modo.demo, true);
+    });
+
+    test('o painel abre sem login', async () => {
+      assert.equal((await fetch(`${base}/`)).status, 200);
+      assert.equal((await fetch(`${base}/api/leads`)).status, 200);
+    });
+
+    test('restaurar devolve a carteira ao estado inicial', async () => {
+      // Sem isso, o primeiro visitante que mexer nos pesos do ICP estraga a
+      // demonstracao para todos os seguintes.
+      const antes = await (await fetch(`${base}/api/leads?porPagina=1`)).json();
+
+      await fetch(`${base}/api/icp`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ setoresAlvo: ['agro'], composicao: { fit: 0.9, intencao: 0.05, acessibilidade: 0.05 } }),
+      });
+      const mexido = await (await fetch(`${base}/api/leads?porPagina=1`)).json();
+      assert.notEqual(antes.itens[0].id, mexido.itens[0].id, 'o ICP alterado deveria mudar o ranking');
+
+      const restaurado = await fetch(`${base}/api/demo/restaurar`, { method: 'POST' });
+      assert.equal(restaurado.status, 200);
+
+      const depois = await (await fetch(`${base}/api/leads?porPagina=1`)).json();
+      assert.equal(depois.itens[0].id, antes.itens[0].id, 'deveria voltar ao ranking original');
+      assert.equal(depois.total, antes.total);
+    });
+  });
+
+  test('a rota de restaurar nao existe fora do modo demo', async () => {
+    const repositorio = new Repositorio(':memory:');
+    repositorio.salvarLeads(gerarCarteira({ quantidade: 5, semente: 'x' }));
+    const servidor = criarServidor(repositorio, { log: false, senha: SENHA, segredoSessao: 'fixo' });
+    await new Promise((r) => servidor.listen(0, '127.0.0.1', r));
+    const base = `http://127.0.0.1:${servidor.address().port}`;
+
+    const resposta = await fetch(`${base}/api/sessao`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ senha: SENHA }),
+    });
+    const cookie = resposta.headers.getSetCookie()[0].split(';')[0];
+
+    // Com sessao valida, ainda assim a rota nao existe: um painel de producao
+    // nao pode ter um botao que apaga a carteira inteira.
+    const restaurar = await fetch(`${base}/api/demo/restaurar`, { method: 'POST', headers: { cookie } });
+    assert.equal(restaurar.status, 404);
+
+    const modo = await (await fetch(`${base}/api/modo`, { headers: { cookie } })).json();
+    assert.equal(modo.demo, false);
+
+    await new Promise((r) => servidor.close(r));
+    repositorio.fechar();
+  });
+});
+
 describe('servidor sem protecao', () => {
   test('tudo fica acessivel quando nao ha senha (uso local)', async () => {
     const repositorio = new Repositorio(':memory:');

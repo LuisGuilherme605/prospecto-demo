@@ -219,9 +219,18 @@ curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/Teste/main/scripts
   | bash -s -- prospecto.seudominio.com.br voce@email.com
 ```
 
-Guias: **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)** para a opção gratuita passo a passo,
-e **[DEPLOY.md](DEPLOY.md)** para comparação de plataformas, variáveis de
-ambiente, backup e restauração.
+Guias, conforme o caso:
+
+| Objetivo | Guia |
+|---|---|
+| Demonstração pública de graça, sem cartão | **[DEMO-GRATIS.md](DEMO-GRATIS.md)** |
+| Servidor gratuito sempre ligado (Oracle Cloud) | **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)** |
+| Uso real: plataformas, variáveis, backup | **[DEPLOY.md](DEPLOY.md)** |
+
+Para portfólio há o **modo demonstração** (`PROSPECTO_MODO_DEMO=1`): libera o
+acesso sem senha, exibe uma faixa permanente avisando que os dados são fictícios
+e habilita o botão de restaurar a carteira. Só é seguro porque a carteira é
+gerada por algoritmo — nunca use com leads reais.
 
 Uma restrição vale saber antes de escolher onde hospedar: o banco é um **arquivo
 SQLite**, então plataformas serverless (Vercel, Netlify, Cloudflare Workers) não

@@ -640,6 +640,42 @@ function comAtraso(funcao, atraso = 260) {
   };
 }
 
+/**
+ * Faixa de demonstracao.
+ *
+ * Numa demo publica o visitante precisa saber, sem precisar perguntar, que os
+ * dados nao sao de empresas reais -- e precisa de um jeito de desfazer o que
+ * mexeu, para nao estragar a demonstracao de quem vier depois.
+ */
+async function configurarModoDemo() {
+  const modo = await api('/api/modo').catch(() => ({ demo: false }));
+  if (!modo.demo) return;
+
+  const botaoRestaurar = el('button', {
+    class: 'botao botao--claro',
+    texto: 'Restaurar demonstracao',
+    onclick: async (evento) => {
+      const botao = evento.currentTarget;
+      botao.disabled = true;
+      botao.textContent = 'Restaurando...';
+      try {
+        await api('/api/demo/restaurar', { method: 'POST' });
+        estado.filtros.pagina = 1;
+        await carregarTudo();
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Restaurar demonstracao';
+      }
+    },
+  });
+
+  document.body.prepend(el('div', { class: 'faixa-demo', role: 'status' },
+    el('strong', { texto: 'Demonstracao' }),
+    el('span', { texto: 'Todos os leads, contatos e telefones desta tela sao ficticios, gerados por algoritmo. Nenhuma empresa ou pessoa real aparece aqui.' }),
+    botaoRestaurar));
+  document.body.classList.add('com-faixa-demo');
+}
+
 /** O botao de sair so faz sentido quando ha sessao para encerrar. */
 async function configurarSaida() {
   try {
@@ -709,7 +745,7 @@ async function iniciar() {
     estado.metadados = await api('/api/meta');
     preencherSelects();
     ligarEventos();
-    await Promise.all([carregarTudo(), configurarSaida()]);
+    await Promise.all([carregarTudo(), configurarSaida(), configurarModoDemo()]);
   } catch (erro) {
     document.querySelector('main').replaceChildren(
       el('div', { class: 'cartao' },
