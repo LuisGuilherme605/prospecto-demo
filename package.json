@@ -1,0 +1,40 @@
+{
+  "name": "prospecto",
+  "version": "1.0.0",
+  "description": "Motor de prospeccao B2B com scoring explicavel, priorizacao de carteira e geracao de cadencia de contato",
+  "type": "module",
+  "license": "MIT",
+  "author": "Luis Guilherme <lg5104891@gmail.com>",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "bin": {
+    "prospecto": "./bin/prospecto.js"
+  },
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "public"
+  ],
+  "scripts": {
+    "start": "node --experimental-sqlite bin/prospecto.js servir",
+    "demo": "node --experimental-sqlite bin/prospecto.js demo",
+    "test": "node --experimental-sqlite --test 'test/*.test.js'",
+    "test:watch": "node --experimental-sqlite --test --watch 'test/*.test.js'",
+    "coverage": "node --experimental-sqlite --test --experimental-test-coverage 'test/*.test.js'"
+  },
+  "keywords": [
+    "prospeccao",
+    "b2b",
+    "lead-scoring",
+    "icp",
+    "vendas",
+    "pipeline"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}
