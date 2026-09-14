@@ -33,6 +33,9 @@ hibernação. É o caminho A abaixo.
 Funciona igual na Oracle Cloud Always Free, Hetzner, DigitalOcean, Contabo ou
 qualquer Ubuntu/Debian.
 
+> **Vai usar a Oracle Cloud?** Há um guia dedicado, com as telas do painel e as
+> armadilhas específicas dela: **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)**.
+
 ### 1. Crie a máquina
 
 Na Oracle Cloud: **Compute → Instances → Create Instance**, escolha a *shape*

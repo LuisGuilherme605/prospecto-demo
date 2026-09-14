@@ -219,8 +219,9 @@ curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/Teste/main/scripts
   | bash -s -- prospecto.seudominio.com.br voce@email.com
 ```
 
-O guia completo — comparação de plataformas, variáveis de ambiente, backup e
-restauração — está em **[DEPLOY.md](DEPLOY.md)**.
+Guias: **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)** para a opção gratuita passo a passo,
+e **[DEPLOY.md](DEPLOY.md)** para comparação de plataformas, variáveis de
+ambiente, backup e restauração.
 
 Uma restrição vale saber antes de escolher onde hospedar: o banco é um **arquivo
 SQLite**, então plataformas serverless (Vercel, Netlify, Cloudflare Workers) não
