@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prospecto - motor de prospeccao B2B</title>
+  <meta name="description" content="Priorizacao de carteira B2B com scoring explicavel, fila de trabalho diaria e previsao de pipeline.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232a78d6'/><path d='M9 22V10h5.6a4 4 0 0 1 0 8H12v4z' fill='white'/></svg>">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <div class="casca">
+    <header class="topo">
+      <div class="marca">
+        <h1>Prospecto</h1>
+        <small>priorizacao de carteira B2B</small>
+      </div>
+      <div class="topo-acoes">
+        <button class="botao" id="btn-icp">Editar ICP</button>
+        <button class="botao" id="btn-exportar">Exportar CSV</button>
+        <button class="botao" id="btn-tema" aria-label="Alternar tema claro e escuro" title="Alternar tema">Tema</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="indicadores" id="indicadores" aria-label="Indicadores da carteira"></section>
+
+      <section class="grade-paineis">
+        <article class="cartao">
+          <div class="cartao-cabeca">
+            <h2>Distribuicao por tier</h2>
+            <span class="rotulo" id="rotulo-total"></span>
+          </div>
+          <div class="cartao-corpo">
+            <div class="barras" id="gr-tiers"></div>
+            <p class="celula-sub" style="margin:12px 0 0">
+              Tier e uma ordem, nao uma categoria: a rampa vai do azul escuro (A) ao claro (D).
+            </p>
+          </div>
+        </article>
+
+        <article class="cartao">
+          <div class="cartao-cabeca">
+            <h2>Funil</h2>
+            <span class="rotulo">estagio atual</span>
+          </div>
+          <div class="cartao-corpo">
+            <div class="barras" id="gr-funil"></div>
+          </div>
+        </article>
+
+        <article class="cartao">
+          <div class="cartao-cabeca">
+            <h2>Previsao de pipeline</h2>
+            <label class="rotulo" for="in-meta" style="display:flex;align-items:center;gap:6px">
+              meta
+              <input class="campo" id="in-meta" type="number" min="0" step="100000" value="1500000"
+                     style="width:130px;padding:4px 8px;font-size:12px" aria-label="Meta de receita">
+            </label>
+          </div>
+          <div class="cartao-corpo" id="pn-previsao"></div>
+        </article>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao-cabeca">
+          <h2>Carteira priorizada</h2>
+          <span class="rotulo">clique em uma linha para abrir o lead</span>
+        </div>
+
+        <div class="cartao-corpo" style="padding-bottom:0">
+          <div class="filtros">
+            <input class="campo busca" id="f-busca" type="search" placeholder="Buscar empresa, dominio ou contato" aria-label="Buscar">
+            <div class="grupo-tier" role="group" aria-label="Filtrar por tier">
+              <button class="pilula-tier" data-tier="A" aria-pressed="false">A</button>
+              <button class="pilula-tier" data-tier="B" aria-pressed="false">B</button>
+              <button class="pilula-tier" data-tier="C" aria-pressed="false">C</button>
+              <button class="pilula-tier" data-tier="D" aria-pressed="false">D</button>
+            </div>
+            <select class="campo" id="f-setor" aria-label="Filtrar por setor"><option value="">Todos os setores</option></select>
+            <select class="campo" id="f-estagio" aria-label="Filtrar por estagio"><option value="">Todos os estagios</option></select>
+            <button class="botao" id="btn-fila">Fila de hoje</button>
+            <span class="filtros-contagem" id="contagem"></span>
+          </div>
+        </div>
+
+        <div class="tabela-envoltorio">
+          <table>
+            <thead>
+              <tr>
+                <th class="num" title="Ordem de prioridade: score ajustado pela urgencia">#</th>
+                <th>Empresa</th>
+                <th>Tier</th>
+                <th class="num">Score / urg.</th>
+                <th>Composicao</th>
+                <th class="col-opcional">Contato</th>
+                <th class="col-opcional num">Potencial</th>
+                <th>Proxima acao</th>
+                <th class="num">Prazo</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <div class="paginacao" id="paginacao"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="camadas"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
