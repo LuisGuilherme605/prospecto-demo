@@ -1,15 +1,26 @@
+# Dependencias (em qualquer nivel: o padrao sem barra inicial e proposital aqui)
 node_modules/
+
+# Banco de dados e artefatos de execucao.
+#
+# A barra INICIAL ancora a regra na raiz do repositorio. Sem ela, "data/"
+# casaria com qualquer diretorio chamado data em qualquer profundidade --
+# inclusive src/data/, que e codigo-fonte. Isso ja aconteceu: os dois arquivos
+# de src/data/ ficaram de fora do repositorio e o projeto so quebrou no CI.
+/data/
+/dados/
+/backups/
+/coverage/
+
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
-data/
-.DS_Store
 *.log
-coverage/
+
+# Ambiente e segredos
 .env
 
-# ambiente e dados de producao
-.env
-dados/
-backups/
+# Sistema operacional
+.DS_Store
+Thumbs.db
