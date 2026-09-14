@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar - Prospecto</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232a78d6'/><path d='M9 22V10h5.6a4 4 0 0 1 0 8H12v4z' fill='white'/></svg>">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body class="pagina-login">
+  <main class="cartao caixa-login">
+    <div class="marca-login">
+      <h1>Prospecto</h1>
+      <p>priorizacao de carteira B2B</p>
+    </div>
+
+    <form id="form-login" autocomplete="on">
+      <label class="rotulo" for="senha">Senha de acesso</label>
+      <input class="campo" id="senha" name="senha" type="password"
+             autocomplete="current-password" required autofocus
+             placeholder="Digite a senha do painel">
+
+      <button class="botao botao--primario botao--bloco" type="submit" id="btn-entrar">Entrar</button>
+
+      <p class="erro-login" id="erro" role="alert" hidden></p>
+    </form>
+
+    <p class="nota-login">
+      O painel contem dados pessoais de contatos comerciais. O acesso e registrado.
+    </p>
+  </main>
+
+  <script type="module" src="login.js"></script>
+</body>
+</html>

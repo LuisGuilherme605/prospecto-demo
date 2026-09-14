@@ -207,6 +207,43 @@ Tema claro e escuro, responsivo até 390px, sem framework e sem etapa de build.
 
 ---
 
+## Colocar no ar
+
+Fora do `localhost`, o servidor **se recusa a iniciar sem senha configurada** — o
+painel expõe dados pessoais de contatos, e publicar isso sem barreira é um
+vazamento esperando acontecer.
+
+```bash
+# VPS com Docker, HTTPS automático e backup diário
+curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/Teste/main/scripts/instalar-servidor.sh \
+  | bash -s -- prospecto.seudominio.com.br voce@email.com
+```
+
+Guias, conforme o caso:
+
+| Objetivo | Guia |
+|---|---|
+| Demonstração pública de graça, sem cartão | **[DEMO-GRATIS.md](DEMO-GRATIS.md)** |
+| Servidor gratuito sempre ligado (Oracle Cloud) | **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)** |
+| Uso real: plataformas, variáveis, backup | **[DEPLOY.md](DEPLOY.md)** |
+
+Para portfólio há o **modo demonstração** (`PROSPECTO_MODO_DEMO=1`): libera o
+acesso sem senha, exibe uma faixa permanente avisando que os dados são fictícios
+e habilita o botão de restaurar a carteira. Só é seguro porque a carteira é
+gerada por algoritmo — nunca use com leads reais.
+
+Uma restrição vale saber antes de escolher onde hospedar: o banco é um **arquivo
+SQLite**, então plataformas serverless (Vercel, Netlify, Cloudflare Workers) não
+servem — o disco delas é efêmero e o banco seria apagado. É preciso disco
+persistente: VPS com Docker, Fly.io com volume, ou Render no plano com disco.
+
+Já vem pronto: `Dockerfile`, `docker-compose.yml` com Caddy (certificado
+Let's Encrypt automático), `fly.toml`, script de instalação para servidor limpo e
+backup com `VACUUM INTO` — que, ao contrário de um `cp`, não gera arquivo
+corrompido se houver escrita em andamento.
+
+---
+
 ## Comandos
 
 ```
@@ -250,6 +287,7 @@ Opções principais: `--banco`, `--quantidade`, `--semente`, `--limite`, `--capa
 | POST | `/api/leads/:id/sinais` | Registra sinal e recalcula o score |
 | PATCH | `/api/leads/:id/estagio` | Move o lead no funil |
 | GET | `/api/exportar.csv` | Exporta a carteira priorizada |
+| POST | `/api/sessao` · DELETE | Entra e sai (cookie de sessão assinado) |
 
 Erros de validação voltam em 422 com a **lista completa de problemas** — o objetivo é
 corrigir tudo de uma vez, não descobrir um erro por requisição.
@@ -287,10 +325,10 @@ src/
     taxonomy.js         Vocabulário do domínio: setores, cargos, sinais
     gerador.js          Carteira sintética determinística
   store/                SQLite nativo do Node; único lugar com SQL
-  server/               HTTP e API; sem regra de negócio
   lib/                  CSV, deduplicação, PRNG, formatação de terminal
 public/               Painel web (sem build)
-test/                 174 testes com node:test
+  server/               HTTP, API e autenticação; sem regra de negócio
+test/                 209 testes com node:test
 ```
 
 **A regra de dependência é de mão única:** `core` não importa `store` nem `server`. É
@@ -306,8 +344,8 @@ produz o mesmo score sempre. Sem isso, nenhum teste de ranking seria confiável.
 ## Testes
 
 ```bash
-npm test         # 174 testes
-npm run coverage # 98,8% de linhas
+npm test         # 209 testes
+npm run coverage
 ```
 
 Os testes cobrem propriedades que precisam valer sempre (monotonicidade, limites,
@@ -318,6 +356,13 @@ lista de problemas, 400 em JSON malformado e bloqueio de travessia de diretório
 
 Uma varredura roda o gerador de cadência sobre 250 leads sintéticos e falha se qualquer
 combinação de trilha e tier deixar um `{{placeholder}}` vazar para o texto final.
+
+A camada de autenticação tem 35 testes próprios, cobrindo cookie forjado, sessão
+expirada, token assinado com outro segredo, força bruta e a recusa de subir
+exposto sem senha. Um deles lê o HTML da tela de login e confere que **todo**
+arquivo que ela carrega está liberado sem sessão — esse caso já falhou de
+verdade: o `login.js` ficou atrás da autenticação e a tela parou de funcionar sem
+nenhuma mensagem de erro.
 
 ---
 

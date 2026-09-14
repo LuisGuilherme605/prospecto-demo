@@ -24,6 +24,37 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      # Esta verificacao existe porque a falha ja aconteceu: a regra "data/" do
+      # .gitignore, feita para o banco na raiz, casou tambem com src/data/ e
+      # deixou dois arquivos de codigo-fonte fora do repositorio. O projeto
+      # rodava na maquina de quem escreveu e quebrava em qualquer clone novo.
+      - name: Conferir que nenhum codigo-fonte esta sendo ignorado pelo Git
+        run: |
+          IGNORADOS=$(git ls-files --others --ignored --exclude-standard --directory \
+            | grep -E '^(src|bin|public|test|scripts|exemplos)/' || true)
+          if [ -n "$IGNORADOS" ]; then
+            echo "Arquivos de codigo-fonte estao no .gitignore e nunca chegariam ao repositorio:"
+            echo "$IGNORADOS"
+            echo ""
+            echo "Ancore a regra do .gitignore com barra inicial (/data/ em vez de data/)."
+            exit 1
+          fi
+          echo "Nenhum codigo-fonte ignorado."
+
+      # O projeto precisa funcionar a partir de um clone limpo, nao da pasta de
+      # trabalho de quem o escreveu. Um clone raso do proprio commit prova isso.
+      - name: Conferir que um clone limpo tem todos os arquivos necessarios
+        run: |
+          git clone --depth 1 "file://$PWD" /tmp/clone-limpo
+          cd /tmp/clone-limpo
+          for ARQUIVO in src/index.js src/data/taxonomy.js src/data/gerador.js \
+                         src/core/scoring.js src/store/repositorio.js \
+                         src/server/servidor.js bin/prospecto.js public/index.html; do
+            test -f "$ARQUIVO" || { echo "Faltando no clone: $ARQUIVO"; exit 1; }
+          done
+          npm test
+          echo "Clone limpo roda a suite completa."
+
       - name: Conferir que o projeto nao tem dependencias
         run: |
           node -e "
@@ -53,17 +84,68 @@ jobs:
           node --experimental-sqlite bin/prospecto.js exportar --banco /tmp/ci-import.db --saida /tmp/saida.csv
           test -s /tmp/saida.csv
 
-      - name: Verificar que o servidor sobe e responde
+      # O servidor se recusa a escutar em interface publica sem senha. O CI
+      # precisa exercitar os dois modos de deploy reais -- protegido por senha e
+      # demonstracao -- em vez de so conferir que o processo sobe.
+      - name: Verificar o servidor protegido por senha
         run: |
-          node --experimental-sqlite bin/prospecto.js servir --banco /tmp/ci.db --porta 3999 &
+          PROSPECTO_SENHA=senha-de-ci PROSPECTO_SEGREDO=segredo-de-ci PROSPECTO_LOG=0 \
+            node --experimental-sqlite bin/prospecto.js servir --banco /tmp/ci.db --porta 3999 &
+          SERVIDOR=$!
           for i in $(seq 1 30); do
             curl -sf http://localhost:3999/api/saude > /dev/null && break
             sleep 1
           done
+
+          echo "healthcheck aberto para a plataforma:"
           curl -sf http://localhost:3999/api/saude
-          curl -sf http://localhost:3999/api/resumo > /dev/null
-          curl -sf "http://localhost:3999/api/previsao?meta=1000000" > /dev/null
-          curl -sf http://localhost:3999/ | grep -q Prospecto
+
+          echo "sem sessao, a API recusa e o painel manda para o login:"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3999/api/leads)" = "401"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3999/)" = "302"
+
+          echo "com a senha correta, tudo responde:"
+          COOKIE=$(curl -s -i -X POST -H 'content-type: application/json' \
+            -d '{"senha":"senha-de-ci"}' http://localhost:3999/api/sessao \
+            | grep -i '^set-cookie:' | sed 's/.*prospecto_sessao=\([^;]*\).*/\1/' | tr -d '\r')
+          test -n "$COOKIE"
+          curl -sf -H "Cookie: prospecto_sessao=$COOKIE" http://localhost:3999/api/resumo > /dev/null
+          curl -sf -H "Cookie: prospecto_sessao=$COOKIE" "http://localhost:3999/api/previsao?meta=1000000" > /dev/null
+          curl -sf -H "Cookie: prospecto_sessao=$COOKIE" http://localhost:3999/ | grep -q Prospecto
+
+          echo "senha errada continua barrada:"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' \
+            -d '{"senha":"errada"}' http://localhost:3999/api/sessao)" = "401"
+
+          kill $SERVIDOR
+
+      - name: Verificar o modo demonstracao
+        run: |
+          PROSPECTO_MODO_DEMO=1 PROSPECTO_LOG=0 \
+            node --experimental-sqlite bin/prospecto.js servir --banco /tmp/ci-demo.db --porta 3998 &
+          SERVIDOR=$!
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3998/api/saude > /dev/null && break
+            sleep 1
+          done
+
+          echo "em modo demo o acesso e aberto:"
+          curl -sf http://localhost:3998/api/leads > /dev/null
+          curl -sf http://localhost:3998/ | grep -q Prospecto
+          curl -sf http://localhost:3998/api/modo | grep -q '"demo":true'
+          curl -sf -X POST http://localhost:3998/api/demo/restaurar > /dev/null
+
+          kill $SERVIDOR
+
+      - name: Verificar que o servidor se recusa a subir exposto sem senha
+        run: |
+          # Trava de seguranca: sem senha e sem modo demo, escutar em 0.0.0.0
+          # precisa falhar na inicializacao em vez de expor dados de contato.
+          if node --experimental-sqlite bin/prospecto.js servir --banco /tmp/ci-inseguro.db --porta 3997; then
+            echo "FALHA: o servidor subiu exposto e sem senha."
+            exit 1
+          fi
+          echo "A trava de seguranca esta ativa."
 
   cobertura:
     name: Cobertura
