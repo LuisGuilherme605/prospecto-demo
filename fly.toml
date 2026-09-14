@@ -1,0 +1,51 @@
+# Alternativa ao VPS: deploy no Fly.io.
+#
+# Mais simples que gerenciar servidor (HTTPS, dominio e reinicio sao automaticos),
+# mas nao ha camada gratuita permanente -- confira o preco atual antes.
+#
+#   fly launch --no-deploy --copy-config
+#   fly volumes create dados --size 1 --region gru
+#   fly secrets set PROSPECTO_SENHA="..." PROSPECTO_SEGREDO="$(openssl rand -hex 32)"
+#   fly deploy
+
+app = 'prospecto'
+primary_region = 'gru'  # Sao Paulo: menor latencia para usuarios no Brasil
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  PORT = '3000'
+  HOST = '0.0.0.0'
+  PROSPECTO_BANCO = '/dados/prospecto.db'
+  PROSPECTO_ATRAS_DE_PROXY = '1'
+
+# O banco e um arquivo: sem volume, cada deploy comecaria do zero.
+[[mounts]]
+  source = 'dados'
+  destination = '/dados'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  # Uma maquina so: SQLite em arquivo nao suporta duas instancias escrevendo no
+  # mesmo volume. Escalar horizontalmente exigiria trocar o banco antes.
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = 'requests'
+    soft_limit = 200
+    hard_limit = 250
+
+[[http_service.checks]]
+  interval = '30s'
+  timeout = '5s'
+  grace_period = '10s'
+  method = 'GET'
+  path = '/api/saude'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'

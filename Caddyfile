@@ -1,0 +1,27 @@
+# Proxy HTTPS do Prospecto.
+# O Caddy cuida do certificado e da renovacao automaticamente.
+
+{$DOMINIO} {
+	tls {$EMAIL}
+
+	encode gzip zstd
+
+	# HSTS: depois da primeira visita, o navegador se recusa a falar HTTP com
+	# este dominio. So faz sentido porque o Caddy ja garante o HTTPS.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	reverse_proxy app:3000 {
+		health_uri /api/saude
+		health_interval 30s
+	}
+
+	log {
+		output file /data/acesso.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}
