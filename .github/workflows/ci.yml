@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  testes:
+    name: Testes (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22.x traz o node:sqlite usado pela persistencia; 24.x garante que a
+        # proxima LTS nao quebre o projeto sem aviso.
+        node: ['22.x', '24.x']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Conferir que o projeto nao tem dependencias
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+            if (Object.keys(deps).length > 0) {
+              console.error('O projeto deve rodar sem dependencias externas. Encontradas:', Object.keys(deps));
+              process.exit(1);
+            }
+            console.log('Nenhuma dependencia externa, como esperado.');
+          "
+
+      - name: Rodar os testes
+        run: npm test
+
+      - name: Verificar a demonstracao de ponta a ponta
+        run: |
+          node --experimental-sqlite bin/prospecto.js semear --banco /tmp/ci.db --quantidade 200 --forcar
+          node --experimental-sqlite bin/prospecto.js ranking --banco /tmp/ci.db --limite 5
+          node --experimental-sqlite bin/prospecto.js fila --banco /tmp/ci.db --capacidade 10
+          node --experimental-sqlite bin/prospecto.js previsao --banco /tmp/ci.db --meta 1500000
+          node --experimental-sqlite bin/prospecto.js cadencia LD-00001 --banco /tmp/ci.db
+
+      - name: Verificar a importacao de CSV
+        run: |
+          node --experimental-sqlite bin/prospecto.js importar exemplos/leads.csv --banco /tmp/ci-import.db
+          node --experimental-sqlite bin/prospecto.js exportar --banco /tmp/ci-import.db --saida /tmp/saida.csv
+          test -s /tmp/saida.csv
+
+      - name: Verificar que o servidor sobe e responde
+        run: |
+          node --experimental-sqlite bin/prospecto.js servir --banco /tmp/ci.db --porta 3999 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3999/api/saude > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://localhost:3999/api/saude
+          curl -sf http://localhost:3999/api/resumo > /dev/null
+          curl -sf "http://localhost:3999/api/previsao?meta=1000000" > /dev/null
+          curl -sf http://localhost:3999/ | grep -q Prospecto
+
+  cobertura:
+    name: Cobertura
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - run: npm run coverage
