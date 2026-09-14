@@ -3,6 +3,9 @@
 Guia para sair do `localhost` e rodar num endereço público, com HTTPS, senha e
 backup automático.
 
+> 🔗 **Demonstração no ar:** https://teste1-k71r.onrender.com
+
+
 ---
 
 ## Antes de tudo: a restrição que elimina metade das opções
@@ -25,7 +28,7 @@ oferecem.
 > **É só para portfólio?** Então a restrição acima não se aplica: a carteira é
 > sintética e o app a regenera a cada reinício, então disco efêmero deixa de ser
 > problema e o plano gratuito do Render passa a servir, sem cartão de crédito.
-> Veja **[DEMO-GRATIS.md](DEMO-GRATIS.md)**.
+> Veja **[DEMO-GRATIS.md](demo-gratis.md)**.
 
 **A opção gratuita de verdade é a Oracle Cloud Always Free**: VM ARM com 24 GB de
 RAM e 200 GB de disco, gratuita por tempo indeterminado, sempre ligada, sem
@@ -39,7 +42,7 @@ Funciona igual na Oracle Cloud Always Free, Hetzner, DigitalOcean, Contabo ou
 qualquer Ubuntu/Debian.
 
 > **Vai usar a Oracle Cloud?** Há um guia dedicado, com as telas do painel e as
-> armadilhas específicas dela: **[ORACLE-CLOUD.md](ORACLE-CLOUD.md)**.
+> armadilhas específicas dela: **[ORACLE-CLOUD.md](oracle-cloud.md)**.
 
 ### 1. Crie a máquina
 

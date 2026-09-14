@@ -5,6 +5,9 @@ Passo a passo para colocar o painel no ar de graça, num servidor sempre ligado.
 **Tempo:** 30 a 45 minutos, sendo boa parte espera de propagação de DNS.
 **Custo:** R$ 0 de servidor. Só o domínio (~R$ 40/ano, ou gratuito com DuckDNS).
 
+> 🔗 **Demonstração no ar:** https://teste1-k71r.onrender.com
+
+
 > A interface da Oracle Cloud muda com frequência. Os nomes dos menus abaixo podem
 > estar levemente diferentes — o caminho lógico continua o mesmo.
 

@@ -2,6 +2,14 @@
   "name": "prospecto",
   "version": "1.0.0",
   "description": "Motor de prospeccao B2B com scoring explicavel, priorizacao de carteira e geracao de cadencia de contato",
+  "homepage": "https://teste1-k71r.onrender.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuisGuilherme605/Teste.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LuisGuilherme605/Teste/issues"
+  },
   "type": "module",
   "license": "MIT",
   "author": "Luis Guilherme <lg5104891@gmail.com>",
