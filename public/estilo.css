@@ -713,3 +713,91 @@ tbody tr:focus-visible { outline: 2px solid var(--acento); outline-offset: -2px;
 @media (max-width: 720px) {
   .faixa-demo { padding: 8px 14px; font-size: 12px; }
 }
+
+/* -------------------------------------------------------------------- toast */
+
+#area-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  background: var(--surface-1);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra), 0 4px 24px rgb(0 0 0 / 18%);
+  font-size: 13px;
+  pointer-events: auto;
+  animation: toast-entrar 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  max-width: 300px;
+  will-change: transform, opacity;
+}
+
+.toast.sair { animation: toast-sair 250ms cubic-bezier(0.5, 0, 1, 0.5) forwards; }
+
+@keyframes toast-entrar { from { transform: translateX(20px); opacity: 0; } }
+@keyframes toast-sair { to { transform: translateX(20px); opacity: 0; } }
+
+.toast-icone { flex-shrink: 0; font-weight: 700; font-size: 14px; }
+.toast--ok .toast-icone { color: var(--bom); }
+.toast--erro .toast-icone { color: var(--critico); }
+.toast--info .toast-icone { color: var(--acento); }
+
+/* -------------------------------------------------------- colunas ordenaveis */
+
+thead th.col-ordenavel { cursor: pointer; }
+thead th.col-ordenavel:hover { color: var(--texto-1); background: var(--surface-2); }
+thead th.col-ordenavel .seta-ordem {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 8px;
+  opacity: 0.3;
+  vertical-align: middle;
+  transition: opacity 120ms, color 120ms;
+}
+thead th.col-ordenavel[data-dir] .seta-ordem {
+  opacity: 1;
+  color: var(--acento);
+}
+
+/* ----------------------------------------------------------------- score cor */
+
+.score-tier-a { color: var(--tier-a); }
+.score-tier-b { color: var(--tier-b); }
+.score-tier-c { color: var(--tier-c); }
+.score-tier-d { color: var(--tier-d); }
+
+/* -------------------------------------------------------------- copiar valor */
+
+.botao-copiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--texto-3);
+  font-size: 11px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 5px;
+  line-height: 1.4;
+  transition: background 100ms, color 100ms, border-color 100ms;
+  cursor: pointer;
+}
+.botao-copiar:hover {
+  background: var(--surface-2);
+  border-color: var(--borda);
+  color: var(--texto-1);
+}
+.botao-copiar:active { opacity: 0.7; }

@@ -89,14 +89,14 @@
             <thead>
               <tr>
                 <th class="num" title="Ordem de prioridade: score ajustado pela urgencia">#</th>
-                <th>Empresa</th>
-                <th>Tier</th>
-                <th class="num">Score / urg.</th>
+                <th class="col-ordenavel" data-col="empresa">Empresa <span class="seta-ordem">⬍</span></th>
+                <th class="col-ordenavel" data-col="tier">Tier <span class="seta-ordem">⬍</span></th>
+                <th class="col-ordenavel num" data-col="score">Score / urg. <span class="seta-ordem">⬍</span></th>
                 <th>Composicao</th>
                 <th class="col-opcional">Contato</th>
-                <th class="col-opcional num">Potencial</th>
+                <th class="col-opcional num col-ordenavel" data-col="valor">Potencial <span class="seta-ordem">⬍</span></th>
                 <th>Proxima acao</th>
-                <th class="num">Prazo</th>
+                <th class="col-ordenavel num" data-col="prazo">Prazo <span class="seta-ordem">⬍</span></th>
               </tr>
             </thead>
             <tbody id="corpo-tabela"></tbody>
@@ -108,6 +108,7 @@
     </main>
   </div>
 
+  <div id="area-toast" role="region" aria-live="polite" aria-label="Notificacoes"></div>
   <div id="camadas"></div>
 
   <script type="module" src="app.js"></script>

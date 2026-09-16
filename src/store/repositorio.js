@@ -58,7 +58,7 @@ export class Repositorio {
     if (filtros.estagio) { condicoes.push('estagio = $estagio'); parametros.estagio = filtros.estagio; }
     if (filtros.regiao) { condicoes.push('regiao = $regiao'); parametros.regiao = filtros.regiao; }
     if (filtros.busca) {
-      condicoes.push('(LOWER(empresa) LIKE $busca OR LOWER(COALESCE(dominio, %s)) LIKE $busca)'.replace('%s', "''"));
+      condicoes.push("(LOWER(empresa) LIKE $busca OR LOWER(COALESCE(dominio, '')) LIKE $busca)");
       parametros.busca = `%${String(filtros.busca).toLowerCase()}%`;
     }
 

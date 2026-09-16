@@ -99,7 +99,7 @@ export function montarApi(repositorio, opcoes = {}) {
   });
 
   roteador.get('/api/leads', (ctx) => {
-    const { tier, estagio, setor, regiao, busca, acao } = ctx.query;
+    const { tier, estagio, setor, regiao, busca, acao, ordenar, direcao } = ctx.query;
     const pagina = Math.max(1, Number(ctx.query.pagina ?? 1));
     const porPagina = Math.min(200, Math.max(1, Number(ctx.query.porPagina ?? 50)));
 
@@ -114,6 +114,20 @@ export function montarApi(repositorio, opcoes = {}) {
       lista = lista.filter((l) => l.empresa.toLowerCase().includes(termo)
         || (l.dominio ?? '').toLowerCase().includes(termo)
         || (l.contato?.nome ?? '').toLowerCase().includes(termo));
+    }
+
+    if (ordenar) {
+      const dir = direcao === 'desc' ? -1 : 1;
+      const tierOrd = { A: 0, B: 1, C: 2, D: 3 };
+      const fns = {
+        empresa: (a, b) => dir * a.empresa.localeCompare(b.empresa, 'pt-BR'),
+        tier: (a, b) => dir * ((tierOrd[a.tier] ?? 4) - (tierOrd[b.tier] ?? 4)),
+        score: (a, b) => dir * (a.score - b.score),
+        valor: (a, b) => dir * (a.valorPotencial - b.valorPotencial),
+        prazo: (a, b) => dir * (a.proximaAcao.prazoDias - b.proximaAcao.prazoDias),
+        acao: (a, b) => dir * a.proximaAcao.acao.localeCompare(b.proximaAcao.acao),
+      };
+      if (fns[ordenar]) lista = [...lista].sort(fns[ordenar]);
     }
 
     const inicio = (pagina - 1) * porPagina;

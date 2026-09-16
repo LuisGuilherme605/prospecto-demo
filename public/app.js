@@ -10,9 +10,10 @@
 
 const estado = {
   filtros: { busca: '', tiers: new Set(), setor: '', estagio: '', pagina: 1 },
+  ordenar: null,
+  direcao: 'desc',
   modoFila: false,
   meta: 1500000,
-  meta_: null,
   leads: [],
   total: 0,
   paginas: 1,
@@ -92,6 +93,22 @@ try {
   const salvo = localStorage.getItem(TEMA_SALVO);
   if (salvo) document.documentElement.dataset.tema = salvo;
 } catch { /* sem preferencia salva */ }
+
+/* ------------------------------------------------------------------- toast */
+
+function toast(mensagem, tipo = 'ok') {
+  const area = $('#area-toast');
+  if (!area) return;
+  const icone = tipo === 'ok' ? '✓' : tipo === 'erro' ? '✗' : 'i';
+  const item = el('div', { class: `toast toast--${tipo}`, role: 'status' },
+    el('span', { class: 'toast-icone', texto: icone }),
+    el('span', { texto: mensagem }));
+  area.append(item);
+  setTimeout(() => {
+    item.classList.add('sair');
+    item.addEventListener('animationend', () => item.remove(), { once: true });
+  }, 2700);
+}
 
 /* ------------------------------------------------------------- indicadores */
 
@@ -273,7 +290,7 @@ function renderTabela() {
         class: 'num',
         title: `Ordenado por score x urgencia = ${lead.scorePrioridade}`,
       },
-        el('div', {}, el('strong', { texto: lead.score.toFixed(1) })),
+        el('div', {}, el('strong', { class: `score-tier-${lead.tier.toLowerCase()}`, texto: lead.score.toFixed(1) })),
         el('div', { class: 'celula-urgencia', texto: `urg ${Math.round(lead.urgencia * 100)}%` })),
       el('td', {}, medidorComposicao(lead.dimensoes)),
       el('td', { class: 'col-opcional' },
@@ -366,6 +383,22 @@ function conteudoDoLead(lead) {
   const { avaliacao } = lead;
   const secoes = [];
 
+  const btnCopiar = (texto) => el('button', {
+    class: 'botao-copiar',
+    title: 'Copiar',
+    'aria-label': `Copiar ${texto}`,
+    texto: '⧉',
+    onclick: async (ev) => {
+      ev.stopPropagation();
+      try {
+        await navigator.clipboard.writeText(texto);
+        toast('Copiado!');
+      } catch {
+        toast('Nao foi possivel copiar', 'erro');
+      }
+    },
+  });
+
   secoes.push(el('section', { class: 'secao' },
     el('div', { style: 'display:flex;align-items:center;gap:12px;margin-bottom:12px' },
       el('span', { class: `selo-tier tier-${lead.tier.toLowerCase()}`, style: 'width:34px;height:34px;font-size:15px', texto: lead.tier }),
@@ -425,15 +458,17 @@ function conteudoDoLead(lead) {
         ['Receita anual', moeda(lead.receitaAnual)],
         ['Maturidade digital', `${lead.maturidadeDigital}/5`],
         ['Estagio', lead.estagio],
-        ['Contato', lead.contato?.nome ?? '-'],
-        ['Cargo', nomeDeMeta('cargos', lead.contato?.cargo)],
-        ['E-mail', lead.contato?.email ?? '-'],
-        ['Telefone', lead.contato?.telefone ?? '-'],
-        ['Stack', (lead.tecnologias ?? []).join(', ') || '-'],
-        ['Potencial anual', moeda(lead.valorPotencial)],
-      ].map(([rotulo, valor]) => el('div', {},
+        ['Contato', lead.contato?.nome ?? '-', null],
+        ['Cargo', nomeDeMeta('cargos', lead.contato?.cargo), null],
+        ['E-mail', lead.contato?.email ?? '-', lead.contato?.email],
+        ['Telefone', lead.contato?.telefone ?? '-', lead.contato?.telefone],
+        ['Stack', (lead.tecnologias ?? []).join(', ') || '-', null],
+        ['Potencial anual', moeda(lead.valorPotencial), null],
+      ].map(([rotulo, valor, copiavel]) => el('div', {},
         el('div', { class: 'dado-rotulo', texto: rotulo }),
-        el('div', { class: 'dado-valor', texto: valor }))))));
+        copiavel
+          ? el('div', { class: 'dado-valor' }, valor, btnCopiar(copiavel))
+          : el('div', { class: 'dado-valor', texto: valor }))))));
 
   const areaCadencia = el('div', {});
   secoes.push(el('section', { class: 'secao' },
@@ -561,6 +596,7 @@ async function abrirEditorIcp() {
           try {
             await api('/api/icp', { method: 'PUT', corpo: rascunho });
             fecharCamadas();
+            toast('ICP atualizado — carteira repriorizada', 'ok');
             await carregarTudo();
           } catch (erro) {
             const detalhes = Array.isArray(erro.detalhes) ? erro.detalhes.join('; ') : '';
@@ -581,21 +617,31 @@ function parametrosDeFiltro() {
   if (estado.filtros.tiers.size > 0) parametros.set('tier', [...estado.filtros.tiers].join(','));
   if (estado.filtros.setor) parametros.set('setor', estado.filtros.setor);
   if (estado.filtros.estagio) parametros.set('estagio', estado.filtros.estagio);
+  if (estado.ordenar) {
+    parametros.set('ordenar', estado.ordenar);
+    parametros.set('direcao', estado.direcao);
+  }
   parametros.set('pagina', String(estado.filtros.pagina));
   parametros.set('porPagina', '50');
   return parametros;
 }
 
+let _ctrlBusca = null;
+
 async function carregarLeads() {
+  _ctrlBusca?.abort();
+  _ctrlBusca = new AbortController();
+  const { signal } = _ctrlBusca;
+
   try {
     if (estado.modoFila) {
-      const fila = await api('/api/fila?capacidade=30');
+      const fila = await api('/api/fila?capacidade=30', { signal });
       estado.leads = fila;
       estado.total = fila.length;
       estado.paginas = 1;
       $('#contagem').textContent = `${fila.length} contatos na fila de hoje`;
     } else {
-      const pagina = await api(`/api/leads?${parametrosDeFiltro()}`);
+      const pagina = await api(`/api/leads?${parametrosDeFiltro()}`, { signal });
       estado.leads = pagina.itens;
       estado.total = pagina.total;
       estado.paginas = pagina.paginas;
@@ -603,6 +649,7 @@ async function carregarLeads() {
     }
     renderTabela();
   } catch (erro) {
+    if (erro.name === 'AbortError') return;
     $('#corpo-tabela').replaceChildren(el('tr', {},
       el('td', { colspan: '9' }, el('div', { class: 'vazio', texto: erro.message }))));
   }
@@ -638,6 +685,35 @@ function comAtraso(funcao, atraso = 260) {
     clearTimeout(temporizador);
     temporizador = setTimeout(() => funcao(...argumentos), atraso);
   };
+}
+
+/* Direcao padrao por coluna ao clicar pela primeira vez */
+const DIR_PADRAO = { empresa: 'asc', score: 'desc', tier: 'asc', valor: 'desc', prazo: 'asc', acao: 'asc' };
+
+function atualizarIndicadoresOrdem() {
+  for (const th of document.querySelectorAll('.col-ordenavel')) {
+    const col = th.dataset.col;
+    const seta = th.querySelector('.seta-ordem');
+    if (estado.ordenar === col) {
+      th.dataset.dir = estado.direcao;
+      if (seta) seta.textContent = estado.direcao === 'asc' ? '▲' : '▼';
+    } else {
+      delete th.dataset.dir;
+      if (seta) seta.textContent = '⬍';
+    }
+  }
+}
+
+function clicarColunaOrdem(col) {
+  if (estado.ordenar === col) {
+    estado.direcao = estado.direcao === 'asc' ? 'desc' : 'asc';
+  } else {
+    estado.ordenar = col;
+    estado.direcao = DIR_PADRAO[col] ?? 'asc';
+  }
+  estado.filtros.pagina = 1;
+  atualizarIndicadoresOrdem();
+  carregarLeads();
 }
 
 /**
@@ -699,7 +775,24 @@ function ligarEventos() {
   $('#btn-exportar').addEventListener('click', () => {
     const tier = estado.filtros.tiers.size > 0 ? `?tier=${[...estado.filtros.tiers].join(',')}` : '';
     window.location.href = `/api/exportar.csv${tier}`;
+    toast('Exportacao iniciada', 'info');
   });
+
+  // Pressionar "/" foca a busca, igual ao GitHub e outros paineis.
+  document.addEventListener('keydown', (evento) => {
+    if (evento.key !== '/') return;
+    if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
+    const alvo = evento.target;
+    if (alvo.tagName === 'INPUT' || alvo.tagName === 'TEXTAREA' || alvo.tagName === 'SELECT' || alvo.isContentEditable) return;
+    evento.preventDefault();
+    const busca = $('#f-busca');
+    busca?.focus();
+    busca?.select();
+  });
+
+  for (const th of document.querySelectorAll('.col-ordenavel')) {
+    th.addEventListener('click', () => clicarColunaOrdem(th.dataset.col));
+  }
 
   $('#btn-fila').addEventListener('click', (evento) => {
     estado.modoFila = !estado.modoFila;
