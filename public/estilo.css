@@ -707,9 +707,75 @@ tbody tr:focus-visible { outline: 2px solid var(--acento); outline-offset: -2px;
   flex-shrink: 0;
 }
 
-/* A faixa empurra o cabecalho fixo para baixo, senao um cobre o outro. */
-.com-faixa-demo .topo { top: 0; }
+/* JS seta --altura-faixa-demo via ResizeObserver; sem isso o topo cola em 0
+   e fica oculto atras da faixa ao rolar a pagina. */
+.com-faixa-demo .topo { top: var(--altura-faixa-demo, 0px); }
 
 @media (max-width: 720px) {
   .faixa-demo { padding: 8px 14px; font-size: 12px; }
+}
+
+/* ------------------------------------------------------------------ esqueleto */
+
+@keyframes pulsacao-esqueleto {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.esqueleto {
+  background: var(--surface-2);
+  border-radius: var(--raio-p);
+  animation: pulsacao-esqueleto 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ toast */
+
+.toast-zona {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 10px 16px;
+  border-radius: var(--raio);
+  background: var(--texto-1);
+  color: var(--surface-1);
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 25%);
+  animation: toast-entrar 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: auto;
+  max-width: 320px;
+  cursor: default;
+}
+
+.toast--ok { background: #1a6e1a; }
+.toast--erro { background: #b53030; }
+
+@keyframes toast-entrar { from { transform: translateX(28px); opacity: 0; } }
+@keyframes toast-sair { to { transform: translateX(28px); opacity: 0; } }
+.toast--saindo { animation: toast-sair 200ms ease forwards; }
+
+/* --------------------------------------------------------------- ordenacao */
+
+thead th.ordenavel { cursor: pointer; user-select: none; }
+thead th.ordenavel:hover { color: var(--texto-1); }
+thead th.ordenavel::after { content: ' \2195'; font-size: 9px; opacity: 0.28; }
+thead th[aria-sort="ascending"]::after { content: ' \2191'; font-size: 9px; opacity: 1; color: var(--acento); }
+thead th[aria-sort="descending"]::after { content: ' \2193'; font-size: 9px; opacity: 1; color: var(--acento); }
+
+/* ----------------------------------------------------- contagem no filtro */
+
+.pilula-tier-n {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
 }

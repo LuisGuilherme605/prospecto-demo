@@ -17,10 +17,42 @@ const estado = {
   total: 0,
   paginas: 1,
   metadados: null,
+  ordenacao: { coluna: 'posicao', direcao: 'asc' },
 };
 
 const $ = (seletor) => document.querySelector(seletor);
 const camadas = $('#camadas');
+
+/* -------------------------------------------------------------------- toast */
+
+const zonaToast = el('div', { class: 'toast-zona' });
+document.body.append(zonaToast);
+
+function toast(mensagem, tipo = '') {
+  const div = el('div', { class: `toast${tipo ? ` toast--${tipo}` : ''}`, texto: mensagem });
+  zonaToast.append(div);
+  const desaparecer = () => {
+    div.classList.add('toast--saindo');
+    div.addEventListener('animationend', () => div.remove(), { once: true });
+  };
+  const t = setTimeout(desaparecer, 3200);
+  div.addEventListener('click', () => { clearTimeout(t); div.remove(); });
+}
+
+/* ---------------------------------------------------------------- esqueleto */
+
+function mostrarEsqueletoIndicadores() {
+  $('#indicadores').replaceChildren(...Array(4).fill(null).map(() =>
+    el('article', { class: 'cartao indicador' },
+      el('div', { class: 'esqueleto', style: 'height:80px' }))));
+}
+
+function mostrarEsqueletoTabela() {
+  $('#corpo-tabela').replaceChildren(...Array(8).fill(null).map(() =>
+    el('tr', {},
+      el('td', { colspan: '9' },
+        el('div', { class: 'esqueleto', style: 'height:24px;margin:6px 12px' })))));
+}
 
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 const NUM = new Intl.NumberFormat('pt-BR');
@@ -224,6 +256,46 @@ function renderPrevisao(previsao) {
   }
 
   $('#pn-previsao').replaceChildren(...partes);
+}
+
+/* ----------------------------------------------------------------- ordenacao */
+
+function obterValorOrdenacao(lead, coluna) {
+  switch (coluna) {
+    case 'scorePrioridade': return lead.scorePrioridade ?? 0;
+    case 'valorPotencial': return lead.valorPotencial ?? 0;
+    case 'prazoDias': return lead.proximaAcao.prazoDias ?? 999;
+    default: return lead.posicao;
+  }
+}
+
+function ordenarLeads() {
+  const { coluna, direcao } = estado.ordenacao;
+  estado.leads.sort((a, b) => {
+    const va = obterValorOrdenacao(a, coluna);
+    const vb = obterValorOrdenacao(b, coluna);
+    return direcao === 'asc' ? va - vb : vb - va;
+  });
+}
+
+function sincronizarCabecalhosOrdenacao() {
+  for (const th of document.querySelectorAll('thead th[data-col]')) {
+    if (th.dataset.col === estado.ordenacao.coluna) {
+      th.setAttribute('aria-sort', estado.ordenacao.direcao === 'asc' ? 'ascending' : 'descending');
+    } else {
+      th.removeAttribute('aria-sort');
+    }
+  }
+}
+
+function atualizarContagemTiers(resumo) {
+  for (const pilula of document.querySelectorAll('.pilula-tier')) {
+    const tier = pilula.dataset.tier;
+    const n = resumo.porTier[tier] ?? 0;
+    if (n > 0 && !pilula.querySelector('.pilula-tier-n')) {
+      pilula.append(el('span', { class: 'pilula-tier-n', texto: ` ${NUM.format(n)}` }));
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ tabela */
@@ -587,6 +659,7 @@ function parametrosDeFiltro() {
 }
 
 async function carregarLeads() {
+  mostrarEsqueletoTabela();
   try {
     if (estado.modoFila) {
       const fila = await api('/api/fila?capacidade=30');
@@ -601,6 +674,9 @@ async function carregarLeads() {
       estado.paginas = pagina.paginas;
       $('#contagem').textContent = `${NUM.format(pagina.total)} leads`;
     }
+    if (estado.ordenacao.coluna !== 'posicao' || estado.ordenacao.direcao !== 'asc') {
+      ordenarLeads();
+    }
     renderTabela();
   } catch (erro) {
     $('#corpo-tabela').replaceChildren(el('tr', {},
@@ -609,6 +685,7 @@ async function carregarLeads() {
 }
 
 async function carregarPaineis() {
+  mostrarEsqueletoIndicadores();
   const [resumo, previsao] = await Promise.all([
     api('/api/resumo'),
     api(`/api/previsao?meta=${estado.meta}`),
@@ -617,6 +694,7 @@ async function carregarPaineis() {
   renderTiers(resumo);
   renderFunil(resumo);
   renderPrevisao(previsao);
+  atualizarContagemTiers(resumo);
 }
 
 async function carregarTudo() {
@@ -662,6 +740,9 @@ async function configurarModoDemo() {
         await api('/api/demo/restaurar', { method: 'POST' });
         estado.filtros.pagina = 1;
         await carregarTudo();
+        toast('Demonstracao restaurada', 'ok');
+      } catch (erro) {
+        toast(erro.message, 'erro');
       } finally {
         botao.disabled = false;
         botao.textContent = 'Restaurar demonstracao';
@@ -669,11 +750,23 @@ async function configurarModoDemo() {
     },
   });
 
-  document.body.prepend(el('div', { class: 'faixa-demo', role: 'status' },
+  const faixa = el('div', { class: 'faixa-demo', role: 'status' },
     el('strong', { texto: 'Demonstracao' }),
     el('span', { texto: 'Todos os leads, contatos e telefones desta tela sao ficticios, gerados por algoritmo. Nenhuma empresa ou pessoa real aparece aqui.' }),
-    botaoRestaurar));
+    botaoRestaurar);
+
+  document.body.prepend(faixa);
   document.body.classList.add('com-faixa-demo');
+
+  // Mantém --altura-faixa-demo sincronizada com a altura real da faixa,
+  // para que o .topo pegajoso não sobreponha a faixa ao rolar a página.
+  const ro = new ResizeObserver(([entrada]) => {
+    document.documentElement.style.setProperty(
+      '--altura-faixa-demo',
+      `${entrada.borderBoxSize[0].blockSize}px`
+    );
+  });
+  ro.observe(faixa);
 }
 
 /** O botao de sair so faz sentido quando ha sessao para encerrar. */
@@ -738,6 +831,21 @@ function ligarEventos() {
     const previsao = await api(`/api/previsao?meta=${estado.meta}`);
     renderPrevisao(previsao);
   }, 380));
+
+  for (const th of document.querySelectorAll('thead th[data-col]')) {
+    th.addEventListener('click', () => {
+      const coluna = th.dataset.col;
+      if (estado.ordenacao.coluna === coluna) {
+        estado.ordenacao.direcao = estado.ordenacao.direcao === 'asc' ? 'desc' : 'asc';
+      } else {
+        estado.ordenacao.coluna = coluna;
+        estado.ordenacao.direcao = coluna === 'posicao' ? 'asc' : 'desc';
+      }
+      sincronizarCabecalhosOrdenacao();
+      ordenarLeads();
+      renderTabela();
+    });
+  }
 }
 
 async function iniciar() {

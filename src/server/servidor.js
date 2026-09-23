@@ -8,6 +8,7 @@
  */
 
 import { createServer } from 'node:http';
+import { createHash } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,7 +88,7 @@ export function criarServidor(repositorio, opcoes = {}) {
         await tratarApi(req, res, url, roteador);
       } else {
         if (!liberado(req, url, auth)) return redirecionarParaLogin(res, url);
-        await servirEstatico(res, url.pathname);
+        await servirEstatico(res, url.pathname, req);
       }
     } catch (erro) {
       const status = erro instanceof ErroHttp ? erro.status : 500;
@@ -209,7 +210,7 @@ async function tratarApi(req, res, url, roteador) {
   return responder(res, 200, resultado);
 }
 
-async function servirEstatico(res, caminho) {
+async function servirEstatico(res, caminho, req) {
   const relativo = caminho === '/' ? '/index.html' : caminho === '/login' ? '/login.html' : caminho;
   // `normalize` + verificacao de prefixo bloqueia travessia de diretorio (`../`).
   const destino = join(RAIZ_PUBLICA, normalize(relativo));
@@ -219,10 +220,18 @@ async function servirEstatico(res, caminho) {
     const info = await stat(destino);
     if (!info.isFile()) throw new ErroHttp(404, 'Nao encontrado');
     const conteudo = await readFile(destino);
+    // ETag baseado no conteudo: o navegador revalida mas so baixa de novo se
+    // o arquivo mudou, economizando banda sem esconder atualizacoes.
+    const etag = `"${createHash('sha1').update(conteudo).digest('hex').slice(0, 20)}"`;
+    if (req?.headers['if-none-match'] === etag) {
+      res.writeHead(304, { ...CABECALHOS_SEGURANCA, etag });
+      return res.end();
+    }
     res.writeHead(200, {
       ...CABECALHOS_SEGURANCA,
       'content-type': TIPOS[extname(destino)] ?? 'application/octet-stream',
       'cache-control': 'no-cache',
+      etag,
     });
     res.end(conteudo);
   } catch (erro) {
