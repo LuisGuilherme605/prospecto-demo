@@ -1,5 +1,7 @@
 # Prospecto
 
+[![CI](https://github.com/LuisGuilherme605/Teste/actions/workflows/ci.yml/badge.svg)](https://github.com/LuisGuilherme605/Teste/actions/workflows/ci.yml) [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE) [![Node.js >= 22.5](https://img.shields.io/badge/node-%3E%3D22.5-339933?logo=node.js&logoColor=white)](package.json) [![Zero dependências](https://img.shields.io/badge/depend%C3%AAncias-zero-brightgreen)](package.json)
+
 **Um painel que responde a pergunta que todo vendedor faz de manhã: *para quem eu ligo primeiro hoje?***
 
 ### 👉 [Ver a demonstração ao vivo](https://teste1-k71r.onrender.com)
@@ -237,6 +239,12 @@ Prefiro dizer do que deixar você descobrir:
 - **A senha é compartilhada.** Não há usuários individuais. Acima de três ou quatro pessoas,
   você perde o rastro de quem fez o quê.
 - **Sem criptografia em repouso.** Quem tiver acesso ao servidor lê o banco.
+
+---
+
+## Contribuindo
+
+Bugs, ideias e PRs são bem-vindos — veja [CONTRIBUTING.md](CONTRIBUTING.md) para como rodar o projeto localmente e o que um PR precisa ter. Encontrou uma falha de segurança em vez de um bug comum? Isso vai por um canal separado — veja [SECURITY.md](SECURITY.md).
 
 ---
 
