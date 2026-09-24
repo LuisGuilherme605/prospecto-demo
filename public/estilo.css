@@ -136,6 +136,19 @@ button { cursor: pointer; }
 
 .topo-acoes { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 
+.rodape {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 0 8px;
+  margin-top: 24px;
+  border-top: 1px solid var(--borda);
+  color: var(--texto-3);
+  font-size: 12px;
+}
+.rodape a { color: var(--acento); text-decoration: none; }
+.rodape a:hover { text-decoration: underline; }
+
 .botao {
   padding: 7px 13px;
   border: 1px solid var(--borda-forte);

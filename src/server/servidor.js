@@ -26,7 +26,7 @@ const LIMITE_CORPO = 2 * 1024 * 1024; // 2 MB: uma requisicao de API nao precisa
  * /login, o navegador recebe HTML onde esperava JavaScript, e a tela de login
  * simplesmente para de funcionar sem nenhuma mensagem.
  */
-const PUBLICOS = new Set(['/login', '/login.html', '/login.js', '/estilo.css', '/favicon.ico']);
+const PUBLICOS = new Set(['/login', '/login.html', '/login.js', '/estilo.css', '/favicon.ico', '/og-imagem.webp']);
 
 const TIPOS = {
   '.html': 'text/html; charset=utf-8',
@@ -36,6 +36,7 @@ const TIPOS = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
+  '.webp': 'image/webp',
 };
 
 /**
