@@ -21,6 +21,9 @@ node_modules/
 # Ambiente e segredos
 .env
 
+# Configuracoes locais de desenvolvimento (permissoes pessoais, nao do time)
+.claude/settings.local.json
+
 # Sistema operacional
 .DS_Store
 Thumbs.db
