@@ -74,7 +74,7 @@ alternativas gratuitas como DuckDNS se for só para uso interno.
 Conecte por SSH e rode:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/Teste/main/scripts/instalar-servidor.sh \
+curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/prospecto-demo/main/scripts/instalar-servidor.sh \
   | bash -s -- prospecto.seudominio.com.br voce@email.com
 ```
 
@@ -90,7 +90,7 @@ O certificado HTTPS é emitido automaticamente em até um minuto. Abra
 ### Se preferir fazer manualmente
 
 ```bash
-git clone https://github.com/LuisGuilherme605/Teste.git /opt/prospecto
+git clone https://github.com/LuisGuilherme605/prospecto-demo.git /opt/prospecto
 cd /opt/prospecto
 cp .env.exemplo .env
 nano .env                      # preencha DOMINIO, EMAIL, PROSPECTO_SENHA
