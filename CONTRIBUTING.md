@@ -13,7 +13,7 @@ trabalho jogado fora se a direção não fizer sentido para o projeto.
 ## Rodando localmente
 
 ```bash
-git clone https://github.com/LuisGuilherme605/Teste.git prospecto
+git clone https://github.com/LuisGuilherme605/prospecto-demo.git prospecto
 cd prospecto
 npm test
 ```

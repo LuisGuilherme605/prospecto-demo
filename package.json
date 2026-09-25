@@ -5,10 +5,10 @@
   "homepage": "https://teste1-k71r.onrender.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LuisGuilherme605/Teste.git"
+    "url": "git+https://github.com/LuisGuilherme605/prospecto-demo.git"
   },
   "bugs": {
-    "url": "https://github.com/LuisGuilherme605/Teste/issues"
+    "url": "https://github.com/LuisGuilherme605/prospecto-demo/issues"
   },
   "type": "module",
   "license": "MIT",

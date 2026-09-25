@@ -18,7 +18,7 @@ set -euo pipefail
 
 DOMINIO="${1:-}"
 EMAIL="${2:-}"
-REPO="${PROSPECTO_REPO:-https://github.com/LuisGuilherme605/Teste.git}"
+REPO="${PROSPECTO_REPO:-https://github.com/LuisGuilherme605/prospecto-demo.git}"
 BRANCH="${PROSPECTO_BRANCH:-main}"
 DESTINO="${PROSPECTO_DIR:-/opt/prospecto}"
 

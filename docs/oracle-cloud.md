@@ -142,7 +142,7 @@ No Windows, use o PowerShell (que já tem `ssh`) ou o PuTTY.
 Um comando, já dentro da máquina:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/Teste/main/scripts/instalar-servidor.sh \
+curl -fsSL https://raw.githubusercontent.com/LuisGuilherme605/prospecto-demo/main/scripts/instalar-servidor.sh \
   | bash -s -- prospecto.seudominio.com.br voce@email.com
 ```
 
@@ -161,7 +161,7 @@ Legítimo. Faça na mão:
 sudo apt-get update && sudo apt-get install -y git
 curl -fsSL https://get.docker.com | sudo sh
 
-sudo git clone https://github.com/LuisGuilherme605/Teste.git /opt/prospecto
+sudo git clone https://github.com/LuisGuilherme605/prospecto-demo.git /opt/prospecto
 cd /opt/prospecto
 
 sudo cp .env.exemplo .env

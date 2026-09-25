@@ -1,6 +1,6 @@
 # Prospecto
 
-[![CI](https://github.com/LuisGuilherme605/Teste/actions/workflows/ci.yml/badge.svg)](https://github.com/LuisGuilherme605/Teste/actions/workflows/ci.yml) [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE) [![Node.js >= 22.5](https://img.shields.io/badge/node-%3E%3D22.5-339933?logo=node.js&logoColor=white)](package.json) [![Zero dependências](https://img.shields.io/badge/depend%C3%AAncias-zero-brightgreen)](package.json)
+[![CI](https://github.com/LuisGuilherme605/prospecto-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/LuisGuilherme605/prospecto-demo/actions/workflows/ci.yml) [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE) [![Node.js >= 22.5](https://img.shields.io/badge/node-%3E%3D22.5-339933?logo=node.js&logoColor=white)](package.json) [![Zero dependências](https://img.shields.io/badge/depend%C3%AAncias-zero-brightgreen)](package.json)
 
 **Um painel que responde a pergunta que todo vendedor faz de manhã: *para quem eu ligo primeiro hoje?***
 
@@ -131,7 +131,7 @@ prospecto ranking --tier A --json | jq -r '.[] | [.empresa, .contato.email] | @t
 Não tem instalação. Sério:
 
 ```bash
-git clone https://github.com/LuisGuilherme605/Teste.git prospecto
+git clone https://github.com/LuisGuilherme605/prospecto-demo.git prospecto
 cd prospecto
 npm run demo
 ```

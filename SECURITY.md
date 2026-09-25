@@ -3,7 +3,7 @@
 ## Reportando uma vulnerabilidade
 
 Se você encontrar uma falha de segurança neste projeto, **não abra uma issue pública**.
-Use a aba **[Security → Report a vulnerability](https://github.com/LuisGuilherme605/Teste/security/advisories/new)**
+Use a aba **[Security → Report a vulnerability](https://github.com/LuisGuilherme605/prospecto-demo/security/advisories/new)**
 deste repositório (GitHub Security Advisories), que cria um relato privado visível só para os
 mantenedores até haver correção.
 
