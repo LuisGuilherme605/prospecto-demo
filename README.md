@@ -2,19 +2,19 @@
 
 [![CI](https://github.com/LuisGuilherme605/prospecto-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/LuisGuilherme605/prospecto-demo/actions/workflows/ci.yml) [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE) [![Node.js >= 22.5](https://img.shields.io/badge/node-%3E%3D22.5-339933?logo=node.js&logoColor=white)](package.json) [![Zero dependências](https://img.shields.io/badge/depend%C3%AAncias-zero-brightgreen)](package.json)
 
-**Um painel que responde a pergunta que todo vendedor faz de manhã: *para quem eu ligo primeiro hoje?***
+Painel de prospecção B2B. Responde a pergunta que o vendedor faz todo dia de manhã: pra quem eu ligo primeiro?
 
-### 👉 [Ver a demonstração ao vivo](https://teste1-k71r.onrender.com)
+[Ver a demo ao vivo](https://teste1-k71r.onrender.com)
 
-> A demo hiberna quando fica parada. Se a primeira carga demorar uns 40 segundos, é isso — depois fica rápida.
-> Todos os dados são fictícios, gerados por algoritmo. Nenhuma empresa ou pessoa real aparece ali.
+> A demo hiberna quando fica parada. Se demorar uns 40s pra carregar na primeira vez, é isso.
+> Todos os dados são fictícios. Nenhuma empresa ou pessoa real aparece ali.
 
 ![O painel do Prospecto](docs/imagens/painel.webp)
 
 <details>
-<summary>Também tem tema escuro</summary>
+<summary>Tema escuro</summary>
 
-![O mesmo painel em tema escuro](docs/imagens/painel-escuro.webp)
+![Painel em tema escuro](docs/imagens/painel-escuro.webp)
 
 </details>
 
@@ -22,103 +22,69 @@
 
 ## O problema
 
-Toda equipe comercial tem uma lista de leads. Quase nenhuma tem uma *ordem*.
+Toda equipe comercial tem lista de leads. Quase nenhuma tem uma ordem.
 
-Aí o dia começa e o vendedor abre a planilha com 800 nomes. Começa de cima, ou por quem
-respondeu por último, ou por quem ele lembrou no banho. E o lead que visitou a página de
-preços ontem fica esperando na linha 340.
+O vendedor abre a planilha com 800 nomes e começa de cima, ou por quem respondeu por último, ou por quem lembrou. E o lead que visitou a página de preços ontem fica lá na linha 340.
 
-Ferramentas de lead scoring costumam responder isso com um número. "Lead 84."
+Ferramentas de lead scoring jogam um número: "Lead 84". Mas 84 não diz nada. O vendedor não sabe se liga ou escreve, não sabe o que falar, e não faz ideia de por que esse lead veio antes do outro.
 
-O problema é que 84 não diz nada. O vendedor não sabe se liga ou escreve. Não sabe o que
-falar. E não faz ideia de por que esse lead veio antes do outro.
+## O que o Prospecto faz
 
-## O que o Prospecto faz diferente
+Ele dá a resposta completa:
 
-Ele responde a pergunta inteira:
+> VetorTech Brasil, score 91, tier A.
+> Setor-alvo, 120 funcionários, usa RD Station, abriu vaga de SDR há 6 dias, contato é Head de Vendas com 3 canais.
+> Ação: ligar hoje. Cadência sugerida: trilha de contratação, 6 toques em 13 dias.
 
-> **VetorTech Brasil — score 91, tier A.**
-> Está no setor-alvo, tem 120 funcionários (dentro da faixa ideal), usa RD Station, abriu
-> vaga de SDR há 6 dias, e o contato é o Head de Vendas com três canais disponíveis.
-> **Ação: ligar hoje.** Cadência sugerida: trilha de contratação, 6 toques em 13 dias.
+Cada número vem com o motivo junto.
 
-Cada número vem com o motivo colado nele. É a diferença entre um relatório e uma
-ferramenta de trabalho.
-
-![Detalhe de um lead, com o score aberto](docs/imagens/lead.webp)
+![Detalhe de um lead](docs/imagens/lead.webp)
 
 ---
 
 ## Como o score funciona
 
-Três coisas independentes, porque misturá-las esconde informação importante:
+Três eixos separados:
 
-| | O que mede | Por que separado |
+| | Mede o quê | Por que separar |
 |---|---|---|
-| **Fit** | O quanto a empresa parece com seu cliente ideal | Muda devagar. É estrutural. |
-| **Intenção** | O quanto ela está se mexendo *agora* | Perde valor todo dia. |
-| **Acessibilidade** | Se dá para falar com quem decide | É operacional, não estratégico. |
+| Fit | Quanto a empresa parece com o cliente ideal | Muda devagar, é estrutural |
+| Intenção | Quanto ela tá se mexendo agora | Perde valor todo dia |
+| Acessibilidade | Se dá pra falar com quem decide | É operacional |
 
-Um lead pode ter perfil ótimo e nenhuma intenção — trabalhe depois. Ou muita intenção e
-perfil ruim — não perca tempo. Um número só esconderia essa diferença.
+Um lead pode ter perfil bom e zero intenção (trabalha depois). Ou muita intenção e perfil ruim (não perde tempo). Um número só esconde essa diferença.
 
-### As decisões que mudam o resultado
+### Decisões importantes
 
-**Sinal velho vale menos.** Cada tipo de sinal tem meia-vida própria: uma visita à página
-de preços perde metade do peso em 10 dias, uma rodada de investimento em 120. Sem isso,
-quem visitou em janeiro competiria de igual para igual com quem visitou ontem.
-
-**Tamanho se mede por proporção, não por diferença.** Uma empresa de 10 pessoas num perfil
-de 30 a 300 não está "20 unidades abaixo" — ela é três vezes menor. A conta antiga dava
-88% de aderência para ela, o que é simplesmente falso. Agora dá 33%, que é o que qualquer
-vendedor diria olhando.
-
-**Dez aberturas de e-mail não valem uma resposta.** Todo sinal satura: o segundo confirma,
-o quinto quase não acrescenta. Sem isso, quem gera muito ruído domina o ranking.
-
-**Quem não serve, não sobe.** Se o lead bate num critério de desqualificação, o score
-trava — por mais intenção que ele demonstre.
-
-**A fila não é o ranking.** A ordem do dia usa o score ajustado pela urgência. Dois leads
-80, um esfriando e outro que viu o preço ontem, não ocupam a mesma posição.
-
-**E a fila mistura tiers de propósito.** Se o time só trabalhar tier A, o funil de médio
-prazo seca e três meses depois o mês fecha vazio. Por isso há cota reservada.
+- Sinal velho vale menos. Cada tipo de sinal tem meia-vida: visita na página de preços perde metade do peso em 10 dias, rodada de investimento em 120.
+- Tamanho se mede por proporção. Empresa de 10 pessoas num perfil de 30 a 300 não tá "20 abaixo", tá 3x menor.
+- Dez aberturas de email não valem uma resposta. Todo sinal satura.
+- Quem não serve, não sobe. Se bate num critério de desqualificação, o score trava.
+- A fila não é o ranking. A ordem do dia usa score ajustado pela urgência.
+- A fila mistura tiers de propósito. Se só trabalhar tier A, o funil de médio prazo seca.
 
 ---
 
-## O que mais tem dentro
+## O que mais tem
 
-**Cadência de contato que sai pronta.** A trilha é escolhida pelo gatilho real do lead —
-quem abriu vaga de SDR recebe um ângulo diferente de quem olhou o preço. São 7 trilhas, e
-o esforço varia por tier: tier A ganha 6 toques multicanal, tier D ganha um e-mail de
-nutrição. O texto sai para você revisar, não para enviar no automático.
+**Cadência de contato pronta.** A trilha é escolhida pelo gatilho real do lead. São 7 trilhas, e o esforço varia por tier. O texto sai pra você revisar, não pra enviar no automático.
 
-![Cadência de contato gerada](docs/imagens/cadencia.webp)
+![Cadência de contato](docs/imagens/cadencia.webp)
 
-**Previsão de pipeline em três cenários.** A probabilidade é composta pelas etapas que
-ainda faltam, não chutada sobre o total. E a faixa cresce quando há muito negócio
-duvidoso — não quando o pipeline é grande, que é o erro do "±20% fixo".
+**Previsão de pipeline em 3 cenários.** A probabilidade é composta pelas etapas que faltam, não chutada sobre o total.
 
-O diagnóstico responde o que o gestor realmente pergunta: não "quanto vou fechar", mas
-**"o que está faltando, e de que tipo é o problema"**.
+**Importação de CSV de verdade.** Ponto e vírgula, acento, BOM do Excel, aspas escapadas, quebra de linha dentro da célula. Deduplica na entrada.
 
-**Importação de CSV que aguenta planilha de verdade.** Ponto e vírgula, acento, BOM do
-Excel, aspas escapadas, quebra de linha dentro da célula. E deduplica na entrada — porque
-lista comprada + export do CRM + planilha do time é sempre a mesma empresa três vezes.
-Quando junta duplicatas, mantém os sinais de todas: jogar fora sinal de intenção seria
-perder o dado mais valioso do lead.
-
-**Linha de comando completa.** Dá para trabalhar sem abrir o navegador:
+**CLI completa:**
 
 ```
-prospecto fila --capacidade 25      # a lista de hoje
-prospecto lead LD-00042             # abrir um lead
+prospecto fila --capacidade 25      # lista de hoje
+prospecto lead LD-00042             # ver um lead
 prospecto cadencia LD-00042         # gerar a sequência
-prospecto previsao --meta 1500000   # projetar o pipeline
+prospecto previsao --meta 1500000   # projetar pipeline
 ```
 
-Todo comando aceita `--json`, então dá para encadear com o que você já usa:
+Todo comando aceita `--json`:
 
 ```bash
 prospecto ranking --tier A --json | jq -r '.[] | [.empresa, .contato.email] | @tsv'
@@ -126,9 +92,9 @@ prospecto ranking --tier A --json | jq -r '.[] | [.empresa, .contato.email] | @t
 
 ---
 
-## Rodando na sua máquina
+## Rodando
 
-Não tem instalação. Sério:
+Não precisa instalar nada:
 
 ```bash
 git clone https://github.com/LuisGuilherme605/prospecto-demo.git prospecto
@@ -136,63 +102,47 @@ cd prospecto
 npm run demo
 ```
 
-Sem `npm install`, sem chave de API, sem banco para configurar. **O projeto tem zero
-dependências externas** — só Node 22 e o que já vem nele. O `package.json` tem a lista de
-dependências vazia, e o CI falha se alguém acrescentar alguma.
+Sem `npm install`, sem chave de API, sem banco. Zero dependências externas, só Node 22. O CI falha se alguém adicionar alguma.
 
-Para abrir o painel: `npm start` e acesse `http://localhost:3000`.
+Pra abrir o painel: `npm start` e acessa `http://localhost:3000`.
 
 ---
 
-## Colocando no ar
+## Deploy
 
-| Se você quer... | Leia |
+| Quer... | Leia |
 |---|---|
-| Uma demo pública de graça, sem cartão | [docs/demo-gratis.md](docs/demo-gratis.md) |
-| Um servidor gratuito sempre ligado | [docs/oracle-cloud.md](docs/oracle-cloud.md) |
+| Demo pública de graça | [docs/demo-gratis.md](docs/demo-gratis.md) |
+| Servidor gratuito sempre ligado | [docs/oracle-cloud.md](docs/oracle-cloud.md) |
 | Usar com leads de verdade | [docs/deploy.md](docs/deploy.md) |
 
-Já vem pronto: `Dockerfile`, `docker-compose.yml` com HTTPS automático, configuração para
-Fly.io e Render, script que instala num servidor Ubuntu limpo, e backup com rotação.
+Já vem com Dockerfile, docker-compose com HTTPS automático, config pra Fly.io e Render, script de instalação e backup.
 
-**Uma coisa importante sobre segurança:** o painel mostra nome, cargo, e-mail e telefone de
-centenas de contatos. Por isso ele **se recusa a subir** num endereço público sem senha
-configurada — e explica como resolver em vez de só quebrar. É proposital: publicar isso
-aberto é vazamento de dados pessoais, com responsabilidade sua sob a LGPD.
-
-A exceção é o modo demonstração, usado no link lá de cima: ele libera o acesso porque a
-carteira é 100% gerada por algoritmo, e o painel avisa isso numa faixa que não sai da tela.
+Sobre segurança: o painel mostra nome, cargo, email e telefone de centenas de contatos. Por isso ele se recusa a subir num endereço público sem senha. A exceção é o modo demo, que só roda com dados fictícios e avisa isso na tela.
 
 ---
 
-## Por dentro
+## Estrutura
 
 ```
-bin/prospecto.js      a linha de comando
+bin/prospecto.js      CLI
 src/
-  core/               a regra de negócio, sem nenhum I/O
-  data/               vocabulário do domínio e gerador da carteira
-  store/              SQLite; o único lugar com SQL
+  core/               regra de negócio, sem I/O
+  data/               vocabulário e gerador da carteira
+  store/              SQLite, único lugar com SQL
   server/             HTTP, API e autenticação
-  lib/                CSV, deduplicação, sorteio determinístico
-public/               o painel (sem build, sem framework)
-docs/                 guias de publicação
+  lib/                CSV, deduplicação, sorteio
+public/               painel web (sem build, sem framework)
+docs/                 guias de deploy
 test/                 215 testes
 ```
 
-Duas regras sustentam o resto:
+Duas regras:
 
-**`core` não importa `store` nem `server`.** É isso que permite usar o motor como
-biblioteca, testar sem subir nada, e ter certeza de que a CLI e o painel nunca divergem —
-os dois chamam exatamente o mesmo código.
+- `core` não importa `store` nem `server`. Dá pra usar o motor como lib e testar sem subir nada.
+- Nada é aleatório de verdade. O sorteio é semeado: mesma semente, mesma carteira, mesmo score sempre.
 
-**Nada é aleatório de verdade.** Não existe `Math.random` no domínio: o sorteio é próprio e
-semeado. A mesma semente dá a mesma carteira em qualquer máquina, e o mesmo lead dá o mesmo
-score sempre. Sem isso, nenhum teste de ranking seria confiável.
-
-### Usando como biblioteca
-
-O motor não precisa de servidor nem de banco:
+### Usando como lib
 
 ```js
 import { avaliarLead, normalizarIcp } from './src/index.js';
@@ -213,41 +163,23 @@ npm test         # 215 testes
 npm run coverage # 98,8% das linhas
 ```
 
-Os testes verificam propriedades que precisam valer sempre — se o score sobe quando
-deveria subir, se o decaimento cai, se nada estoura os limites — e não números fixos, que
-quebrariam a cada ajuste do modelo. A API sobe de verdade numa porta e é testada por HTTP,
-incluindo os erros: 404, 422, JSON malformado, tentativa de acessar arquivo fora da pasta.
-
-Uma varredura gera cadência para 250 leads diferentes e falha se qualquer combinação
-deixar um `{{campo}}` vazar para o texto final.
-
-O CI roda em Node 22 e 24, e além dos testes exercita os modos reais de publicação: com
-senha, em demonstração, e a trava que recusa subir exposto.
+Os testes verificam propriedades (se o score sobe quando deveria, se o decaimento funciona, se nada estoura os limites), não números fixos. A API sobe de verdade e é testada por HTTP, incluindo erros. CI roda em Node 22 e 24.
 
 ---
 
-## O que ainda não está resolvido
+## Limitações
 
-Prefiro dizer do que deixar você descobrir:
-
-- **As taxas de conversão da previsão são estimativas**, não o seu histórico. Estão isoladas
-  num objeto só para serem trocadas. Até lá, confie na *ordem* dos leads; o valor absoluto
-  do pipeline é indicativo.
-- **Uma instância só.** SQLite em arquivo não aceita dois processos escrevendo juntos. Não é
-  a quantidade de leads que obriga a trocar por PostgreSQL — é a quantidade de processos.
-  E quando precisar, só um arquivo muda.
-- **A senha é compartilhada.** Não há usuários individuais. Acima de três ou quatro pessoas,
-  você perde o rastro de quem fez o quê.
-- **Sem criptografia em repouso.** Quem tiver acesso ao servidor lê o banco.
+- As taxas de conversão da previsão são estimativas, não seu histórico. Confie na ordem dos leads, o valor absoluto é indicativo.
+- Uma instância só. SQLite não aceita dois processos escrevendo ao mesmo tempo.
+- Senha compartilhada. Não tem usuários individuais.
+- Sem criptografia em repouso.
 
 ---
 
 ## Contribuindo
 
-Bugs, ideias e PRs são bem-vindos — veja [CONTRIBUTING.md](CONTRIBUTING.md) para como rodar o projeto localmente e o que um PR precisa ter. Encontrou uma falha de segurança em vez de um bug comum? Isso vai por um canal separado — veja [SECURITY.md](SECURITY.md).
-
----
+Veja [CONTRIBUTING.md](CONTRIBUTING.md). Falha de segurança vai por [SECURITY.md](SECURITY.md).
 
 ## Licença
 
-MIT — veja [LICENSE](LICENSE). Use, modifique e publique à vontade.
+MIT. Veja [LICENSE](LICENSE).
