@@ -17,15 +17,15 @@ export function normalizarEmpresa(nome) {
     .trim();
 }
 
-/** Normaliza dominio: tira protocolo, `www.` e caminho. */
+/** Normaliza dominio: tira protocolo, `www.`, porta, caminho e ancora. */
 export function normalizarDominio(valor) {
   if (!valor) return '';
   return String(valor)
     .toLowerCase().trim()
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')
-    .split('/')[0]
-    .split('?')[0];
+    .split(/[/?#]/)[0]
+    .replace(/:\d+$/, '');
 }
 
 /**
