@@ -27,11 +27,16 @@ export function lerCsv(texto, opcoes = {}) {
     });
 }
 
-/** Escolhe o delimitador pela primeira linha: virgula ou ponto e virgula (padrao BR). */
+/**
+ * Escolhe o delimitador pela primeira linha: virgula ou ponto e virgula (padrao BR).
+ * Ignora o que estiver entre aspas, para que um cabecalho como "Nome, completo";email
+ * nao seja lido como separado por virgula.
+ */
 export function detectarDelimitador(texto) {
-  const primeiraLinha = texto.split(/\r?\n/, 1)[0] ?? '';
-  const virgulas = (primeiraLinha.match(/,/g) ?? []).length;
-  const pontosEVirgula = (primeiraLinha.match(/;/g) ?? []).length;
+  const primeiraLinha = texto.replace(/^\uFEFF/, '').split(/\r?\n/, 1)[0] ?? '';
+  const semAspas = primeiraLinha.replace(/"[^"]*"/g, '');
+  const virgulas = (semAspas.match(/,/g) ?? []).length;
+  const pontosEVirgula = (semAspas.match(/;/g) ?? []).length;
   return pontosEVirgula > virgulas ? ';' : ',';
 }
 

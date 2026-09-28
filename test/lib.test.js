@@ -33,6 +33,7 @@ describe('lerCsv', () => {
   test('detecta ponto e virgula, o padrao do Excel brasileiro', () => {
     assert.equal(detectarDelimitador('a;b;c\n1;2;3'), ';');
     assert.equal(detectarDelimitador('a,b,c\n1,2,3'), ',');
+    assert.equal(detectarDelimitador('"Nome, completo";email\n"Ana, Silva";a@x.com'), ';');
     assert.deepEqual(lerCsv('a;b\n1;2\n'), [{ a: '1', b: '2' }]);
   });
 
