@@ -60,6 +60,11 @@ describe('lerCsv', () => {
 });
 
 describe('escreverCsv', () => {
+  test('neutraliza formulas mas preserva telefone e numero negativo', () => {
+    const csv = escreverCsv([{ a: '=CMD()', b: '+55 61 99999-0000', c: -3, d: '@soma', e: '-x' }]);
+    assert.equal(csv, "a,b,c,d,e\n'=CMD(),+55 61 99999-0000,-3,'@soma,'-x\n");
+  });
+
   test('escapa nomes de coluna com virgula no cabecalho', () => {
     const original = [{ 'Nome, completo': 'Ana', email: 'a@x.com' }];
     assert.deepEqual(lerCsv(escreverCsv(original)), original);

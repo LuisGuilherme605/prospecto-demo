@@ -86,7 +86,9 @@ export function escreverCsv(registros, opcoes = {}) {
 
   const escapar = (valor) => {
     if (valor === null || valor === undefined) return '';
-    const texto = Array.isArray(valor) ? valor.join('|') : String(valor);
+    const texto = typeof valor === 'string'
+      ? neutralizarFormula(valor)
+      : Array.isArray(valor) ? valor.join('|') : String(valor);
     return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
   };
 
@@ -95,4 +97,15 @@ export function escreverCsv(registros, opcoes = {}) {
     linhas.push(colunas.map((coluna) => escapar(registro[coluna])).join(delimitador));
   }
   return `${linhas.join('\n')}\n`;
+}
+
+/**
+ * Evita injecao de formula quando o CSV e aberto no Excel/Sheets: texto vindo de
+ * lead que comeca com `=` ou `@` (ou `+`/`-` que nao seja telefone/numero) ganha
+ * um apostrofo na frente. So mexe em strings; numeros negativos passam intactos.
+ */
+function neutralizarFormula(texto) {
+  if (/^[=@]/.test(texto)) return `'${texto}`;
+  if (/^[+-]/.test(texto) && !/^[+-]?[\d\s().-]+$/.test(texto)) return `'${texto}`;
+  return texto;
 }
