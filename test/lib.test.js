@@ -117,6 +117,20 @@ describe('distanciaEdicao', () => {
   });
 });
 
+describe('e-mail gratuito na deduplicacao', () => {
+  test('gmail em comum nao junta empresas diferentes', () => {
+    const a = { empresa: 'Padaria Aurora', contato: { email: 'dono@gmail.com' } };
+    const b = { empresa: 'Oficina Ribeiro', contato: { email: 'contato@gmail.com' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0);
+  });
+
+  test('dominio corporativo em comum continua indicando duplicata', () => {
+    const a = { empresa: 'Acme Log', contato: { email: 'ana@acmelog.com.br' } };
+    const b = { empresa: 'Acme Logistica', contato: { email: 'rui@acmelog.com.br' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0.95);
+  });
+});
+
 describe('deduplicar', () => {
   test('junta registros com o mesmo dominio escrito de formas diferentes', () => {
     const resultado = deduplicar([
