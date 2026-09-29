@@ -52,6 +52,12 @@ export function distanciaEdicao(a, b, limite = 3) {
   return anterior[b.length];
 }
 
+/** Provedores de e-mail gratuito: compartilhar o dominio nao indica mesma empresa. */
+const EMAIL_PUBLICO = new Set([
+  'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'yahoo.com.br',
+  'live.com', 'icloud.com', 'bol.com.br', 'uol.com.br', 'terra.com.br',
+]);
+
 /**
  * Confianca de que dois leads sao a mesma empresa (0 a 1).
  * Dominio identico e prova forte; nome parecido sozinho e indicio.
@@ -63,7 +69,7 @@ export function confiancaDeDuplicata(a, b) {
 
   const emailA = normalizarDominio((a.contato?.email ?? '').split('@')[1]);
   const emailB = normalizarDominio((b.contato?.email ?? '').split('@')[1]);
-  if (emailA && emailA === emailB) return 0.95;
+  if (emailA && emailA === emailB && !EMAIL_PUBLICO.has(emailA)) return 0.95;
 
   const nomeA = normalizarEmpresa(a.empresa);
   const nomeB = normalizarEmpresa(b.empresa);
