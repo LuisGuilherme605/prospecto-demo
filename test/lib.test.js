@@ -60,6 +60,12 @@ describe('lerCsv', () => {
 });
 
 describe('escreverCsv', () => {
+  test('cita o valor que contem o delimitador escolhido', () => {
+    const original = [{ nome: 'a\tb', nota: 'ok' }];
+    const csv = escreverCsv(original, { delimitador: '\t' });
+    assert.deepEqual(lerCsv(csv, { delimitador: '\t' }), original);
+  });
+
   test('escapa nomes de coluna com virgula no cabecalho', () => {
     const original = [{ 'Nome, completo': 'Ana', email: 'a@x.com' }];
     assert.deepEqual(lerCsv(escreverCsv(original)), original);
