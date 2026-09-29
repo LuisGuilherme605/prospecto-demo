@@ -117,6 +117,20 @@ describe('distanciaEdicao', () => {
   });
 });
 
+describe('confiancaDeDuplicata com e-mail', () => {
+  test('nao trata e-mail de provedor gratuito como mesma empresa', () => {
+    const a = { empresa: 'Padaria Central', contato: { email: 'maria@gmail.com' } };
+    const b = { empresa: 'Oficina do Ze', contato: { email: 'ze@gmail.com' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0);
+  });
+
+  test('dominio corporativo igual no e-mail continua indicando duplicata', () => {
+    const a = { empresa: 'Acme', contato: { email: 'a@acme.com.br' } };
+    const b = { empresa: 'Acme Brasil', contato: { email: 'b@acme.com.br' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0.95);
+  });
+});
+
 describe('deduplicar', () => {
   test('junta registros com o mesmo dominio escrito de formas diferentes', () => {
     const resultado = deduplicar([
