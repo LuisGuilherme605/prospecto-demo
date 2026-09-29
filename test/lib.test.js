@@ -37,6 +37,10 @@ describe('lerCsv', () => {
     assert.deepEqual(lerCsv('a;b\n1;2\n'), [{ a: '1', b: '2' }]);
   });
 
+  test('cabecalho com quebra de linha entre aspas nao confunde o delimitador', () => {
+    assert.equal(detectarDelimitador('"Nome,\ncompleto";email\nAna;a@x.com'), ';');
+  });
+
   test('remove o BOM que o Excel escreve no inicio do arquivo', () => {
     assert.deepEqual(lerCsv('﻿empresa\nAcme\n'), [{ empresa: 'Acme' }]);
   });

@@ -33,8 +33,7 @@ export function lerCsv(texto, opcoes = {}) {
  * nao seja lido como separado por virgula.
  */
 export function detectarDelimitador(texto) {
-  const primeiraLinha = texto.replace(/^\uFEFF/, '').split(/\r?\n/, 1)[0] ?? '';
-  const semAspas = primeiraLinha.replace(/"[^"]*"/g, '');
+  const semAspas = texto.replace(/^\uFEFF/, '').replace(/"[^"]*"/g, '').split(/\r?\n/, 1)[0] ?? '';
   const virgulas = (semAspas.match(/,/g) ?? []).length;
   const pontosEVirgula = (semAspas.match(/;/g) ?? []).length;
   return pontosEVirgula > virgulas ? ';' : ',';
