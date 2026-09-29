@@ -87,7 +87,8 @@ export function escreverCsv(registros, opcoes = {}) {
   const escapar = (valor) => {
     if (valor === null || valor === undefined) return '';
     const texto = Array.isArray(valor) ? valor.join('|') : String(valor);
-    return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+    const precisaAspas = /["\n\r;,]/.test(texto) || texto.includes(delimitador);
+    return precisaAspas ? `"${texto.replace(/"/g, '""')}"` : texto;
   };
 
   const linhas = [colunas.map(escapar).join(delimitador)];

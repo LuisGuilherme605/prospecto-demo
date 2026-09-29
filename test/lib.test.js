@@ -73,6 +73,12 @@ describe('escreverCsv', () => {
     assert.deepEqual(lerCsv(escreverCsv(original)), original);
   });
 
+  test('escapa valores que contem um delimitador personalizado', () => {
+    const original = [{ nome: 'a\tb', tags: 'x|y' }];
+    const csv = escreverCsv(original, { delimitador: '\t' });
+    assert.deepEqual(lerCsv(csv, { delimitador: '\t' }), original);
+  });
+
   test('lista vazia gera string vazia', () => {
     assert.equal(escreverCsv([]), '');
   });
