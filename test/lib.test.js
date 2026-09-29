@@ -184,6 +184,12 @@ describe('deduplicar', () => {
       { empresa: 'Y', contato: { email: 'b@acme.com' } }) >= 0.9);
   });
 
+  test('e-mail de provedor gratuito nao junta empresas diferentes', () => {
+    assert.ok(confiancaDeDuplicata(
+      { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
+      { empresa: 'Oficina Souza', contato: { email: 'contato@gmail.com' } }) < 0.85);
+  });
+
   test('lista vazia nao quebra', () => {
     assert.deepEqual(deduplicar([]), { unicos: [], removidos: 0, grupos: [] });
   });

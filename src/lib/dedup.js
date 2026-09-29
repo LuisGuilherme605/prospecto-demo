@@ -17,6 +17,13 @@ export function normalizarEmpresa(nome) {
     .trim();
 }
 
+/** Provedores de e-mail gratuito: compartilhar o dominio nao indica mesma empresa. */
+const EMAIL_PESSOAL = new Set([
+  'gmail.com', 'googlemail.com', 'hotmail.com', 'outlook.com', 'live.com',
+  'yahoo.com', 'yahoo.com.br', 'icloud.com', 'uol.com.br', 'bol.com.br',
+  'terra.com.br', 'ig.com.br', 'msn.com', 'proton.me', 'protonmail.com',
+]);
+
 /** Normaliza dominio: tira protocolo, `www.` e caminho. */
 export function normalizarDominio(valor) {
   if (!valor) return '';
@@ -63,7 +70,7 @@ export function confiancaDeDuplicata(a, b) {
 
   const emailA = normalizarDominio((a.contato?.email ?? '').split('@')[1]);
   const emailB = normalizarDominio((b.contato?.email ?? '').split('@')[1]);
-  if (emailA && emailA === emailB) return 0.95;
+  if (emailA && emailA === emailB && !EMAIL_PESSOAL.has(emailA)) return 0.95;
 
   const nomeA = normalizarEmpresa(a.empresa);
   const nomeB = normalizarEmpresa(b.empresa);
