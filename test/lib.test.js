@@ -73,6 +73,11 @@ describe('escreverCsv', () => {
     assert.deepEqual(lerCsv(escreverCsv(original)), original);
   });
 
+  test('protege valores que contem o delimitador escolhido', () => {
+    const csv = escreverCsv([{ nome: 'Ana\tSilva', email: 'a@x.com' }], { delimitador: '\t' });
+    assert.equal(csv, 'nome\temail\n"Ana\tSilva"\ta@x.com\n');
+  });
+
   test('lista vazia gera string vazia', () => {
     assert.equal(escreverCsv([]), '');
   });
