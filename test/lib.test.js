@@ -60,6 +60,11 @@ describe('lerCsv', () => {
 });
 
 describe('escreverCsv', () => {
+  test('escapa nomes de coluna com virgula ou aspas no cabecalho', () => {
+    const original = [{ 'Nome, completo': 'Ana', 'Cargo "atual"': 'CTO' }];
+    assert.deepEqual(lerCsv(escreverCsv(original)), original);
+  });
+
   test('faz ida e volta sem perder conteudo', () => {
     const original = [
       { empresa: 'Acme, Ltda', obs: 'linha 1\nlinha 2', valor: '100' },

@@ -90,7 +90,7 @@ export function escreverCsv(registros, opcoes = {}) {
     return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
   };
 
-  const linhas = [colunas.join(delimitador)];
+  const linhas = [colunas.map(escapar).join(delimitador)];
   for (const registro of registros) {
     linhas.push(colunas.map((coluna) => escapar(registro[coluna])).join(delimitador));
   }
