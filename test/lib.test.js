@@ -85,6 +85,13 @@ describe('escreverCsv', () => {
     assert.match(escreverCsv([{ stack: ['aws', 'gcp'] }]), /aws\|gcp/);
   });
 
+  test('coloca aspas em campo que contem o delimitador customizado', () => {
+    const original = [{ nome: 'a\tb', cargo: 'dev' }];
+    const csv = escreverCsv(original, { delimitador: '\t' });
+    assert.equal(csv, 'nome\tcargo\n"a\tb"\tdev\n');
+    assert.deepEqual(lerCsv(csv, { delimitador: '\t' }), original);
+  });
+
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });
