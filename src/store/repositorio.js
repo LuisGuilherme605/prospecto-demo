@@ -105,10 +105,14 @@ export class Repositorio {
       .sort((a, b) => new Date(b.data) - new Date(a.data));
 
     const tocouOContato = ['respondeu_email', 'reuniao_realizada', 'demo_solicitada'].includes(tipo);
+    // Um sinal antigo lancado depois nao pode fazer o ultimo contato voltar no tempo.
+    const ultimoContato = tocouOContato && !(lead.ultimoContatoEm && new Date(lead.ultimoContatoEm) > new Date(data))
+      ? data
+      : lead.ultimoContatoEm;
     const agora = new Date().toISOString();
 
     this.#db.prepare('UPDATE leads SET sinais = ?, ultimo_contato_em = ?, atualizado_em = ? WHERE id = ?')
-      .run(JSON.stringify(sinais), tocouOContato ? data : lead.ultimoContatoEm, agora, id);
+      .run(JSON.stringify(sinais), ultimoContato, agora, id);
     this.registrarEvento(id, 'sinal', { tipo, data });
     return this.buscarLead(id);
   }

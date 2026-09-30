@@ -120,6 +120,13 @@ describe('Repositorio', () => {
     assert.equal(depois.sinais[0].tipo, 'demo_solicitada');
   });
 
+  test('sinal antigo nao faz o ultimo contato retroceder', () => {
+    const alvo = repositorio.listarLeads({ limite: 1, offset: 5 })[0];
+    repositorio.registrarSinal(alvo.id, 'respondeu_email', '2026-09-10T12:00:00.000Z');
+    const depois = repositorio.registrarSinal(alvo.id, 'reuniao_realizada', '2026-08-01T12:00:00.000Z');
+    assert.equal(new Date(depois.ultimoContatoEm).toISOString(), '2026-09-10T12:00:00.000Z');
+  });
+
   test('ICP cai no padrao quando nada foi salvo', () => {
     const repo = new Repositorio(':memory:');
     assert.ok(repo.obterIcp().setoresAlvo.length > 0);
