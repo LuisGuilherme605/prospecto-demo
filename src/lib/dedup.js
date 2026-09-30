@@ -7,6 +7,12 @@
  * que e o pior resultado possivel.
  */
 
+// Provedores de e-mail publico: compartilhar o dominio nao indica mesma empresa.
+const EMAIL_PUBLICO = new Set([
+  'gmail.com', 'googlemail.com', 'hotmail.com', 'outlook.com', 'live.com',
+  'yahoo.com', 'yahoo.com.br', 'icloud.com', 'uol.com.br', 'bol.com.br', 'terra.com.br',
+]);
+
 /** Normaliza nome de empresa removendo acentos, pontuacao e sufixos societarios. */
 export function normalizarEmpresa(nome) {
   return String(nome ?? '')
@@ -63,7 +69,7 @@ export function confiancaDeDuplicata(a, b) {
 
   const emailA = normalizarDominio((a.contato?.email ?? '').split('@')[1]);
   const emailB = normalizarDominio((b.contato?.email ?? '').split('@')[1]);
-  if (emailA && emailA === emailB) return 0.95;
+  if (emailA && emailA === emailB && !EMAIL_PUBLICO.has(emailA)) return 0.95;
 
   const nomeA = normalizarEmpresa(a.empresa);
   const nomeB = normalizarEmpresa(b.empresa);

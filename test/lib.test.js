@@ -113,6 +113,20 @@ describe('normalizacao para deduplicacao', () => {
   });
 });
 
+describe('confiancaDeDuplicata com e-mail', () => {
+  test('mesmo dominio de e-mail corporativo indica duplicata', () => {
+    const a = { empresa: 'Alfa', contato: { email: 'ana@alfa.com.br' } };
+    const b = { empresa: 'Beta', contato: { email: 'rui@alfa.com.br' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0.95);
+  });
+
+  test('provedor publico de e-mail nao junta empresas diferentes', () => {
+    const a = { empresa: 'Padaria Central', contato: { email: 'ana@gmail.com' } };
+    const b = { empresa: 'Oficina Sol', contato: { email: 'rui@gmail.com' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0);
+  });
+});
+
 describe('distanciaEdicao', () => {
   test('mede as edicoes necessarias', () => {
     assert.equal(distanciaEdicao('acme', 'acme'), 0);
