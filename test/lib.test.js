@@ -41,6 +41,11 @@ describe('lerCsv', () => {
     assert.deepEqual(lerCsv('﻿empresa\nAcme\n'), [{ empresa: 'Acme' }]);
   });
 
+  test('BOM seguido de cabecalho com virgula entre aspas mantem o delimitador ponto e virgula', () => {
+    const texto = '﻿"Nome, completo";email\n"Ana, Silva";ana@x.com\n';
+    assert.deepEqual(lerCsv(texto), [{ 'Nome, completo': 'Ana, Silva', email: 'ana@x.com' }]);
+  });
+
   test('aceita CRLF', () => {
     assert.deepEqual(lerCsv('a,b\r\n1,2\r\n'), [{ a: '1', b: '2' }]);
   });
