@@ -136,6 +136,15 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
+    const resultado = deduplicar([
+      { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
+      { empresa: 'Oficina do Ze', contato: { email: 'ze@gmail.com' } },
+    ]);
+    assert.equal(resultado.unicos.length, 2);
+    assert.equal(resultado.removidos, 0);
+  });
+
   test('preserva os sinais de todos os registros mesclados', () => {
     // O sinal de intencao e o dado mais valioso do lead: perder um por causa da
     // deduplicacao seria o pior efeito colateral possivel.
