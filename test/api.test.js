@@ -33,6 +33,15 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
 
+  test('codificacao invalida no caminho vira 400, nao excecao generica', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/x/:nome', () => null);
+    assert.throws(
+      () => roteador.resolver('GET', '/api/x/%E0%A4%A'),
+      (erro) => erro.status === 400,
+    );
+  });
+
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
     roteador.get('/api/x', () => 'get');
