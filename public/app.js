@@ -93,6 +93,25 @@ try {
   if (salvo) document.documentElement.dataset.tema = salvo;
 } catch { /* sem preferencia salva */ }
 
+/* -------------------------------------------------------------------- toast */
+
+const _areaToast = (() => {
+  const area = document.createElement('div');
+  area.className = 'toast-area';
+  document.body.append(area);
+  return area;
+})();
+
+function mostrarToast(mensagem, tipo = 'normal', duracao = 3200) {
+  const toast = el('div', { class: `toast toast--${tipo}`, texto: mensagem });
+  _areaToast.append(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(6px)';
+    setTimeout(() => toast.remove(), 220);
+  }, duracao);
+}
+
 /* ------------------------------------------------------------- indicadores */
 
 function renderIndicadores(resumo, previsao) {
@@ -255,6 +274,8 @@ function renderTabela() {
 
   corpo.replaceChildren(...estado.leads.map((lead) => {
     const urgente = lead.proximaAcao.prazoDias === 0;
+    const classeScore = lead.score >= 70 ? 'score--alto' : lead.score >= 45 ? 'score--medio' : 'score--baixo';
+    const subEmpresa = lead.cidade ? `${lead.cidade} | ${NUM.format(lead.funcionarios)} func.` : `${NUM.format(lead.funcionarios)} func.`;
     const linha = el('tr', {
       tabindex: '0',
       role: 'button',
@@ -267,13 +288,13 @@ function renderTabela() {
       el('td', { class: 'num', texto: String(lead.posicao) }),
       el('td', {},
         el('div', { class: 'celula-empresa', texto: lead.empresa }),
-        el('div', { class: 'celula-sub', texto: `${lead.cidade ?? ''} | ${NUM.format(lead.funcionarios)} func.` })),
+        el('div', { class: 'celula-sub', texto: subEmpresa })),
       el('td', {}, el('span', { class: `selo-tier tier-${lead.tier.toLowerCase()}`, texto: lead.tier })),
       el('td', {
         class: 'num',
         title: `Ordenado por score x urgencia = ${lead.scorePrioridade}`,
       },
-        el('div', {}, el('strong', { texto: lead.score.toFixed(1) })),
+        el('div', {}, el('strong', { class: classeScore, texto: lead.score.toFixed(1) })),
         el('div', { class: 'celula-urgencia', texto: `urg ${Math.round(lead.urgencia * 100)}%` })),
       el('td', {}, medidorComposicao(lead.dimensoes)),
       el('td', { class: 'col-opcional' },
@@ -510,7 +531,7 @@ async function abrirEditorIcp() {
   };
 
   const corpo = el('div', { class: 'modal-corpo' },
-    el('p', { class: 'celula-sub', style: 'margin-top:0', texto: 'Mudar o ICP repriorizr a carteira inteira na hora. Os pesos do fit sao relativos entre si; a composicao precisa somar 100%.' }),
+    el('p', { class: 'celula-sub', style: 'margin-top:0', texto: 'Mudar o ICP reprioriza a carteira inteira na hora. Os pesos do fit sao relativos entre si; a composicao precisa somar 100%.' }),
 
     el('section', { class: 'secao' },
       el('span', { class: 'rotulo', texto: 'Pesos dos criterios de fit' }),
@@ -561,6 +582,7 @@ async function abrirEditorIcp() {
           try {
             await api('/api/icp', { method: 'PUT', corpo: rascunho });
             fecharCamadas();
+            mostrarToast('ICP salvo. Carteira repriorizada.', 'bom');
             await carregarTudo();
           } catch (erro) {
             const detalhes = Array.isArray(erro.detalhes) ? erro.detalhes.join('; ') : '';
@@ -586,7 +608,15 @@ function parametrosDeFiltro() {
   return parametros;
 }
 
+function renderEsqueleto() {
+  const corpo = $('#corpo-tabela');
+  corpo.replaceChildren(...Array.from({ length: 8 }, () =>
+    el('tr', { class: 'carregando-corpo' },
+      el('td', { colspan: '9' }, el('div', { class: 'esqueleto' })))));
+}
+
 async function carregarLeads() {
+  renderEsqueleto();
   try {
     if (estado.modoFila) {
       const fila = await api('/api/fila?capacidade=30');
@@ -699,6 +729,7 @@ function ligarEventos() {
   $('#btn-exportar').addEventListener('click', () => {
     const tier = estado.filtros.tiers.size > 0 ? `?tier=${[...estado.filtros.tiers].join(',')}` : '';
     window.location.href = `/api/exportar.csv${tier}`;
+    mostrarToast('Exportacao iniciada. O arquivo sera baixado em instantes.', 'bom');
   });
 
   $('#btn-fila').addEventListener('click', (evento) => {
@@ -738,6 +769,15 @@ function ligarEventos() {
     const previsao = await api(`/api/previsao?meta=${estado.meta}`);
     renderPrevisao(previsao);
   }, 380));
+
+  // Atalho / foca a busca (padrao de apps B2B como Linear e Notion)
+  document.addEventListener('keydown', (evento) => {
+    if (evento.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      evento.preventDefault();
+      $('#f-busca').focus();
+      $('#f-busca').select();
+    }
+  });
 }
 
 async function iniciar() {
