@@ -88,6 +88,13 @@ describe('escreverCsv', () => {
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });
+
+  test('usa ponto e virgula quando pedido e a leitura detecta sozinha', () => {
+    const original = [{ empresa: 'Acme, Ltda', cidade: 'Sao Paulo' }];
+    const texto = escreverCsv(original, { delimitador: ';' });
+    assert.match(texto, /^empresa;cidade\n/);
+    assert.deepEqual(lerCsv(texto), original);
+  });
 });
 
 describe('normalizacao para deduplicacao', () => {
