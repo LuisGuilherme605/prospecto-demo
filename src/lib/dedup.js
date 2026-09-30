@@ -17,6 +17,12 @@ export function normalizarEmpresa(nome) {
     .trim();
 }
 
+/** Provedores de e-mail gratuito: o dominio do e-mail nao identifica a empresa. */
+const PROVEDORES_GRATUITOS = new Set([
+  'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'yahoo.com.br',
+  'live.com', 'icloud.com', 'uol.com.br', 'bol.com.br', 'terra.com.br',
+]);
+
 /** Normaliza dominio: tira protocolo, `www.` e caminho. */
 export function normalizarDominio(valor) {
   if (!valor) return '';
@@ -63,7 +69,7 @@ export function confiancaDeDuplicata(a, b) {
 
   const emailA = normalizarDominio((a.contato?.email ?? '').split('@')[1]);
   const emailB = normalizarDominio((b.contato?.email ?? '').split('@')[1]);
-  if (emailA && emailA === emailB) return 0.95;
+  if (emailA && emailA === emailB && !PROVEDORES_GRATUITOS.has(emailA)) return 0.95;
 
   const nomeA = normalizarEmpresa(a.empresa);
   const nomeB = normalizarEmpresa(b.empresa);
