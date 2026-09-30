@@ -86,7 +86,12 @@ export function escreverCsv(registros, opcoes = {}) {
 
   const escapar = (valor) => {
     if (valor === null || valor === undefined) return '';
-    const texto = Array.isArray(valor) ? valor.join('|') : String(valor);
+    let texto = Array.isArray(valor) ? valor.join('|') : String(valor);
+    // Excel e Sheets executam celula que comeca com = + - @ como formula; lead
+    // importado de fora pode trazer isso no nome da empresa. Numeros ficam como estao.
+    if (typeof valor === 'string' && /^[=+\-@\t]/.test(texto) && !/^[+-]?[\d.,]+$/.test(texto)) {
+      texto = `'${texto}`;
+    }
     return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
   };
 

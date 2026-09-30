@@ -85,6 +85,14 @@ describe('escreverCsv', () => {
     assert.match(escreverCsv([{ stack: ['aws', 'gcp'] }]), /aws\|gcp/);
   });
 
+  test('neutraliza texto que o Excel interpretaria como formula', () => {
+    const csv = escreverCsv([{ empresa: '=HYPERLINK("http://x.com")', obs: '@soma', saldo: '-12,5', n: -3 }]);
+    assert.match(csv, /"'=HYPERLINK/);
+    assert.match(csv, /'@soma/);
+    assert.match(csv, /"-12,5"/);
+    assert.match(csv, /,-3\n$/);
+  });
+
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });
