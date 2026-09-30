@@ -52,6 +52,12 @@ export function distanciaEdicao(a, b, limite = 3) {
   return anterior[b.length];
 }
 
+/** Provedores de e-mail publico: o dominio do e-mail nao identifica a empresa. */
+const PROVEDORES_PUBLICOS = new Set([
+  'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'yahoo.com.br',
+  'live.com', 'icloud.com', 'uol.com.br', 'bol.com.br', 'terra.com.br', 'msn.com',
+]);
+
 /**
  * Confianca de que dois leads sao a mesma empresa (0 a 1).
  * Dominio identico e prova forte; nome parecido sozinho e indicio.
@@ -63,7 +69,7 @@ export function confiancaDeDuplicata(a, b) {
 
   const emailA = normalizarDominio((a.contato?.email ?? '').split('@')[1]);
   const emailB = normalizarDominio((b.contato?.email ?? '').split('@')[1]);
-  if (emailA && emailA === emailB) return 0.95;
+  if (emailA && emailA === emailB && !PROVEDORES_PUBLICOS.has(emailA)) return 0.95;
 
   const nomeA = normalizarEmpresa(a.empresa);
   const nomeB = normalizarEmpresa(b.empresa);
