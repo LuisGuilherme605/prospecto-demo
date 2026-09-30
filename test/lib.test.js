@@ -125,6 +125,20 @@ describe('distanciaEdicao', () => {
   });
 });
 
+describe('confiancaDeDuplicata com email pessoal', () => {
+  test('mesmo provedor gratuito nao indica mesma empresa', () => {
+    const a = { empresa: 'Padaria Sol', contato: { email: 'ana@gmail.com' } };
+    const b = { empresa: 'Oficina Central', contato: { email: 'bruno@gmail.com' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0);
+  });
+
+  test('dominio corporativo em comum continua valendo', () => {
+    const a = { empresa: 'Acme Brasil', contato: { email: 'ana@acme.com.br' } };
+    const b = { empresa: 'Acme Filial', contato: { email: 'bruno@acme.com.br' } };
+    assert.equal(confiancaDeDuplicata(a, b), 0.95);
+  });
+});
+
 describe('deduplicar', () => {
   test('junta registros com o mesmo dominio escrito de formas diferentes', () => {
     const resultado = deduplicar([
