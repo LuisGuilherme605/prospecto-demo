@@ -73,6 +73,12 @@ describe('escreverCsv', () => {
     assert.deepEqual(lerCsv(escreverCsv(original)), original);
   });
 
+  test('ida e volta com ponto e virgula preserva virgulas decimais', () => {
+    const original = [{ empresa: 'Acme', valor: '1,5', obs: 'a;b' }];
+    const csv = escreverCsv(original, { delimitador: ';' });
+    assert.deepEqual(lerCsv(csv, { delimitador: ';' }), original);
+  });
+
   test('lista vazia gera string vazia', () => {
     assert.equal(escreverCsv([]), '');
   });
