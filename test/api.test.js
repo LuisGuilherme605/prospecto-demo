@@ -120,6 +120,11 @@ describe('Repositorio', () => {
     assert.equal(depois.sinais[0].tipo, 'demo_solicitada');
   });
 
+  test('limite negativo nao devolve a carteira inteira e % na busca e literal', () => {
+    assert.equal(repositorio.listarLeads({ limite: -1 }).length, 1);
+    assert.equal(repositorio.listarLeads({ busca: '%' }).length, 0);
+  });
+
   test('sinal antigo nao faz o ultimo contato retroceder', () => {
     const alvo = repositorio.listarLeads({ limite: 1, offset: 5 })[0];
     repositorio.registrarSinal(alvo.id, 'respondeu_email', '2026-09-10T12:00:00.000Z');
