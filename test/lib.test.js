@@ -207,6 +207,12 @@ describe('deduplicar', () => {
 });
 
 describe('createRng', () => {
+  test('weighted nunca devolve entrada de peso zero', () => {
+    const sorteio = createRng(1);
+    const entradas = [{ value: 'a', weight: 0 }, { value: 'b', weight: 1 }];
+    for (let i = 0; i < 200; i += 1) assert.equal(sorteio.weighted(entradas), 'b');
+  });
+
   test('a mesma semente produz a mesma sequencia', () => {
     const a = createRng('semente');
     const b = createRng('semente');
