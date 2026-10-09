@@ -30,10 +30,19 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodificar(casamento[indice + 1]); });
       return { manipulador: rota.manipulador, parametros };
     }
     return null;
+  }
+}
+
+/** `%` solto no caminho (ex.: /api/leads/%E0%A) faz decodeURIComponent lancar; vira 400 em vez de 500. */
+function decodificar(valor) {
+  try {
+    return decodeURIComponent(valor);
+  } catch {
+    throw new ErroHttp(400, 'Parametro de caminho mal formado');
   }
 }
 
