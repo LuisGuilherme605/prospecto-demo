@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de um registro mesclado por nome tambem passa a agrupar', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', dominio: 'acme.com' },
+      { empresa: 'Acme Ltda', dominio: 'acme.com.br' },
+      { empresa: 'Acme Brasil Filial', dominio: 'acme.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
