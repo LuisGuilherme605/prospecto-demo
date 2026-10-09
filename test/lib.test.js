@@ -103,6 +103,8 @@ describe('normalizacao para deduplicacao', () => {
     assert.equal(normalizarEmpresa('Açaí & Cia Ltda'), normalizarEmpresa('ACAI E CIA'.replace(' E ', ' & ')));
     assert.equal(normalizarEmpresa('Acme Ltda'), 'acme');
     assert.equal(normalizarEmpresa('ACME S/A'), 'acme');
+    assert.equal(normalizarEmpresa('Acme S.A.'), 'acme');
+    assert.equal(normalizarEmpresa('Acme S. A'), 'acme');
   });
 
   test('normaliza dominio removendo protocolo, www e caminho', () => {
