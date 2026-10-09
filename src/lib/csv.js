@@ -12,7 +12,7 @@
  * @param {object} opcoes { delimitador }
  */
 export function lerCsv(texto, opcoes = {}) {
-  const linhas = dividirLinhas(texto.replace(/^﻿/, ''), opcoes.delimitador ?? detectarDelimitador(texto));
+  const linhas = dividirLinhas(texto.replace(/^\uFEFF/, ''), opcoes.delimitador ?? detectarDelimitador(texto));
   if (linhas.length === 0) return [];
 
   const cabecalho = linhas[0].map((coluna) => coluna.trim());
