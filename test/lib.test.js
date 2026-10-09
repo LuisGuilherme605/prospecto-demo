@@ -251,6 +251,10 @@ describe('createRng', () => {
     assert.equal(new Set(amostra).size, 8);
   });
 
+  test('sample com quantidade negativa devolve lista vazia', () => {
+    assert.deepEqual(createRng('x').sample([1, 2, 3], -1), []);
+  });
+
   test('sample nunca devolve mais do que existe', () => {
     assert.equal(createRng('x').sample([1, 2, 3], 10).length, 3);
   });

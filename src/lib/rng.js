@@ -72,7 +72,7 @@ export function createRng(seed) {
     /** `count` itens distintos, sem repeticao (Fisher-Yates parcial). */
     sample(items, count) {
       const pool = [...items];
-      const take = Math.min(count, pool.length);
+      const take = Math.max(0, Math.min(count, pool.length));
       for (let i = 0; i < take; i += 1) {
         const j = i + Math.floor(next() * (pool.length - i));
         [pool[i], pool[j]] = [pool[j], pool[i]];
