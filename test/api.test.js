@@ -289,6 +289,12 @@ describe('API HTTP', () => {
     });
   });
 
+  test('codificacao de URL invalida no caminho devolve 400 e nao 500', async () => {
+    const { status, dados } = await pegar('/api/leads/%E0%A4%A');
+    assert.equal(status, 400);
+    assert.match(dados.erro, /codificacao/);
+  });
+
   test('GET /api/exportar.csv devolve CSV com cabecalho', async () => {
     const resposta = await fetch(`${base}/api/exportar.csv?tier=A`);
     assert.equal(resposta.status, 200);
