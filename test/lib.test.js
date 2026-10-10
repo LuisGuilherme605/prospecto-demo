@@ -54,6 +54,10 @@ describe('lerCsv', () => {
     assert.deepEqual(lerCsv('a,b\n'), []);
   });
 
+  test('mantem a ultima linha quando ela e so uma celula vazia entre aspas', () => {
+    assert.deepEqual(lerCsv('a,b\n1,2\n3,""'), [{ a: '1', b: '2' }, { a: '3', b: '' }]);
+  });
+
   test('completa colunas faltantes com string vazia', () => {
     assert.deepEqual(lerCsv('a,b,c\n1,2\n'), [{ a: '1', b: '2', c: '' }]);
   });

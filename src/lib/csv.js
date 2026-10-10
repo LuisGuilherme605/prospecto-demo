@@ -67,7 +67,9 @@ function dividirLinhas(texto, delimitador) {
     atual += caractere;
   }
 
-  if (atual !== '' || celulas.length > 0) {
+  // `texto.at(-1) === '"'` cobre a ultima celula vazia entre aspas (`""`), que
+  // deixa `atual` vazio e seria descartada junto com a linha.
+  if (atual !== '' || celulas.length > 0 || texto.at(-1) === '"') {
     celulas.push(atual);
     linhas.push(celulas);
   }
