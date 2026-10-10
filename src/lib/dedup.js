@@ -106,6 +106,7 @@ export function deduplicar(leads, limiar = 0.85) {
       // registro anterior desaparecer, senao os sinais dele somem na mesclagem.
       grupo.membros.push(lead);
       if (completude(lead) > completude(grupo.principal)) grupo.principal = lead;
+      if (dominio && !indicePorDominio.has(dominio)) indicePorDominio.set(dominio, grupo);
     } else {
       grupo = { principal: lead, membros: [lead] };
       grupos.push(grupo);
@@ -117,7 +118,8 @@ export function deduplicar(leads, limiar = 0.85) {
     if (grupo.membros.length === 1) return grupo.principal;
     const sinais = mesclarSinais(grupo.membros.flatMap((l) => l.sinais ?? []));
     const tecnologias = [...new Set(grupo.membros.flatMap((l) => l.tecnologias ?? []))];
-    return { ...grupo.principal, sinais, tecnologias, duplicatasMescladas: grupo.membros.length - 1 };
+    const dominio = grupo.principal.dominio || grupo.membros.find((l) => l.dominio)?.dominio;
+    return { ...grupo.principal, ...(dominio && { dominio }), sinais, tecnologias, duplicatasMescladas: grupo.membros.length - 1 };
   });
 
   return {

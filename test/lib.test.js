@@ -161,6 +161,21 @@ describe('deduplicar', () => {
     assert.deepEqual(tipos, ['abriu_email', 'visitou_precos']);
   });
 
+  test('nao perde o dominio quando o sobrevivente veio sem ele', () => {
+    const resultado = deduplicar([
+      {
+        empresa: 'Acme',
+        setor: 'varejo',
+        regiao: 'sul',
+        cidade: 'Curitiba',
+        contato: { nome: 'A', cargo: 'ceo', email: 'a@acme.com', telefone: '1', linkedin: 'x' },
+      },
+      { empresa: 'Acme Ltda', dominio: 'acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.unicos[0].dominio, 'acme.com');
+  });
+
   test('mantem o registro mais completo como sobrevivente', () => {
     const resultado = deduplicar([
       { empresa: 'Acme', dominio: 'acme.com' },
