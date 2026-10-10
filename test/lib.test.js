@@ -187,6 +187,15 @@ describe('deduplicar', () => {
     assert.deepEqual(resultado.unicos[0].tecnologias.sort(), ['aws', 'gcp']);
   });
 
+  test('dominio de um membro mesclado por nome tambem agrupa registros seguintes', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', setor: 'saas', funcionarios: 50, regiao: 'sudeste', cidade: 'sp' },
+      { empresa: 'Acme Ltda', dominio: 'acme.com' },
+      { empresa: 'Grupo Outro Nome', dominio: 'acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('empresas diferentes com nomes parecidos nao sao unidas', () => {
     const resultado = deduplicar([
       { empresa: 'Alpha Tech', dominio: 'alphatech.com' },
