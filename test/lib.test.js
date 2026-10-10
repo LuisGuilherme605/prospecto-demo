@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de um registro mesclado por nome tambem agrupa os seguintes', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', setor: 'saas', funcionarios: 50, cidade: 'SP', regiao: 'sudeste', contato: { nome: 'A', email: 'a@x.com', telefone: '1' } },
+      { empresa: 'Acme Ltda', dominio: 'acme.com' },
+      { empresa: 'Holding Zeta', dominio: 'acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
