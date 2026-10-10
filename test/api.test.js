@@ -33,6 +33,12 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
 
+  test('responde 400 quando o parametro tem codificacao invalida', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/x/:nome', (ctx) => ctx.parametros.nome);
+    assert.throws(() => roteador.resolver('GET', '/api/x/%zz'), (erro) => erro.status === 400);
+  });
+
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
     roteador.get('/api/x', () => 'get');
