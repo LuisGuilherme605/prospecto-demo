@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { lerCsv, escreverCsv, detectarDelimitador } from '../src/lib/csv.js';
 import { deduplicar, normalizarEmpresa, normalizarDominio, distanciaEdicao, confiancaDeDuplicata } from '../src/lib/dedup.js';
 import { createRng, seedFrom } from '../src/lib/rng.js';
+import { barra } from '../src/lib/terminal.js';
 import { gerarCarteira } from '../src/data/gerador.js';
 
 describe('lerCsv', () => {
@@ -331,5 +332,16 @@ describe('gerarCarteira', () => {
     const leads = gerarCarteira({ quantidade: 200, semente: 'canais', referencia: REF });
     const semTelefone = leads.filter((l) => !l.contato.telefone).length;
     assert.ok(semTelefone > 0 && semTelefone < leads.length, 'a cobertura de canais deveria variar');
+  });
+});
+
+describe('barra', () => {
+  test('valor acima do maximo nao passa da largura da barra', () => {
+    assert.equal(barra(150, 100, 10), '#'.repeat(10));
+  });
+
+  test('valor negativo ou maximo zero deixa a barra vazia', () => {
+    assert.equal(barra(-5, 100, 4), '....');
+    assert.equal(barra(5, 0, 4), '....');
   });
 });
