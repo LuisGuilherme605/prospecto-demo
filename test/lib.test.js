@@ -111,6 +111,12 @@ describe('normalizacao para deduplicacao', () => {
     }
     assert.equal(normalizarDominio(null), '');
   });
+
+  test('normaliza dominio ignorando porta e ancora', () => {
+    assert.equal(normalizarDominio('http://acme.com.br:8080/app'), 'acme.com.br');
+    assert.equal(normalizarDominio('acme.com.br#contato'), 'acme.com.br');
+    assert.equal(normalizarDominio('acme.com.br?ref=x'), 'acme.com.br');
+  });
 });
 
 describe('distanciaEdicao', () => {
