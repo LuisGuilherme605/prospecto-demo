@@ -236,6 +236,12 @@ describe('probabilidadeDeFechamento', () => {
     assert.equal(probabilidadeDeFechamento({ tier: 'A', score: 90, estagio: 'perdido' }), 0);
   });
 
+  test('lead sem score usa a media em vez de virar NaN', () => {
+    const semScore = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(semScore));
+    assert.equal(semScore, probabilidadeDeFechamento({ tier: 'B', score: 50, estagio: 'novo' }));
+  });
+
   test('fica sempre no intervalo 0-1', () => {
     for (const tier of ['A', 'B', 'C', 'D']) {
       for (const estagio of ['novo', 'contatado', 'engajado', 'reuniao', 'oportunidade']) {
