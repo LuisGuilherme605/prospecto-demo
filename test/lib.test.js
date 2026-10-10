@@ -195,6 +195,15 @@ describe('deduplicar', () => {
     assert.equal(resultado.unicos.length, 2);
   });
 
+  test('dominio de um registro mesclado por nome tambem agrupa os proximos', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme' },
+      { empresa: 'Acme', dominio: 'acme.com' },
+      { empresa: 'Acme Brasil Solucoes Digitais', dominio: 'acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('dominio do e-mail serve de prova quando nao ha dominio no registro', () => {
     assert.ok(confiancaDeDuplicata(
       { empresa: 'X', contato: { email: 'a@acme.com' } },
