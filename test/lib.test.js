@@ -161,6 +161,20 @@ describe('deduplicar', () => {
     assert.deepEqual(tipos, ['abriu_email', 'visitou_precos']);
   });
 
+  test('dominio que aparece depois de uma mesclagem por nome ainda agrupa', () => {
+    const resultado = deduplicar([
+      {
+        empresa: 'Acme',
+        setor: 'saas',
+        cidade: 'Recife',
+        contato: { nome: 'A', cargo: 'cto', email: 'a@acme.com', telefone: '1' },
+      },
+      { empresa: 'Acme Ltda', dominio: 'acme.com' },
+      { empresa: 'Zeta Holding', dominio: 'www.acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('mantem o registro mais completo como sobrevivente', () => {
     const resultado = deduplicar([
       { empresa: 'Acme', dominio: 'acme.com' },
