@@ -52,8 +52,9 @@ export function tabela(colunas, linhas) {
 
 /** Barra horizontal para visualizar proporcao no terminal. */
 export function barra(valor, maximo, tamanho = 24) {
-  const preenchido = maximo > 0 ? Math.round((valor / maximo) * tamanho) : 0;
-  return '#'.repeat(Math.max(0, preenchido)) + cor.cinza('.'.repeat(Math.max(0, tamanho - preenchido)));
+  const proporcao = maximo > 0 ? Math.round((valor / maximo) * tamanho) : 0;
+  const preenchido = Math.min(tamanho, Math.max(0, proporcao));
+  return '#'.repeat(preenchido) + cor.cinza('.'.repeat(tamanho - preenchido));
 }
 
 export function titulo(texto) {
