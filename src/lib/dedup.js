@@ -12,6 +12,8 @@ export function normalizarEmpresa(nome) {
   return String(nome ?? '')
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .toLowerCase()
+    // "S.A." e "M.E." viram "sa" e "me" para casar com o sufixo abaixo
+    .replace(/\b([a-z])\.([a-z])\.?(?![a-z])/g, '$1$2')
     .replace(/\b(ltda|me|epp|sa|s\/a|eireli|mei|inc|llc|corp|group|grupo)\b/g, '')
     .replace(/[^a-z0-9]+/g, '')
     .trim();
