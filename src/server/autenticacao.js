@@ -155,7 +155,13 @@ export function lerCookie(cabecalho, nome) {
     const separador = parte.indexOf('=');
     if (separador === -1) continue;
     if (parte.slice(0, separador).trim() === nome) {
-      return decodeURIComponent(parte.slice(separador + 1).trim());
+      const bruto = parte.slice(separador + 1).trim();
+      try {
+        return decodeURIComponent(bruto);
+      } catch {
+        // Cookie com % malformado nao pode derrubar a requisicao: vale como ausente.
+        return null;
+      }
     }
   }
   return null;

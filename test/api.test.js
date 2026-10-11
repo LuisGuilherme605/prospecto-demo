@@ -39,6 +39,13 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('POST', '/api/x'), null);
   });
 
+  test('parametro com escape invalido nao lanca e nao casa', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/leads/:id', () => 'ok');
+    assert.equal(roteador.resolver('GET', '/api/leads/%E0%A4%A'), null);
+    assert.equal(roteador.resolver('GET', '/api/leads/a%20b').parametros.id, 'a b');
+  });
+
   test('rota inexistente devolve null', () => {
     assert.equal(new Roteador().resolver('GET', '/nada'), null);
   });

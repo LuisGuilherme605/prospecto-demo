@@ -120,6 +120,7 @@ describe('cookies e proxy', () => {
     assert.equal(lerCookie(cabecalho, 'prospecto_sessao'), 'abc123');
     assert.equal(lerCookie(cabecalho, 'inexistente'), null);
     assert.equal(lerCookie(undefined, 'x'), null);
+    assert.equal(lerCookie('prospecto_sessao=%E0%A4%A', 'prospecto_sessao'), null);
   });
 
   test('o cookie de sessao traz as protecoes obrigatorias', () => {
