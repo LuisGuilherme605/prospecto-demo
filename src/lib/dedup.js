@@ -24,8 +24,8 @@ export function normalizarDominio(valor) {
     .toLowerCase().trim()
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')
-    .split('/')[0]
-    .split('?')[0];
+    .split(/[/?#]/)[0]
+    .replace(/:\d+$/, '');
 }
 
 /**
