@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de um lead mesclado pelo nome tambem identifica o grupo', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Solucoes', setor: 'saas', regiao: 'sul', cidade: 'Curitiba' },
+      { empresa: 'Acme Solucoes Ltda', dominio: 'acmesolucoes.com.br' },
+      { empresa: 'Grupo Horizonte', dominio: 'acmesolucoes.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
