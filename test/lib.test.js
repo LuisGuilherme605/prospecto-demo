@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de um registro que entrou no grupo pelo nome tambem junta os seguintes', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', dominio: 'acme.com', setor: 'saas', funcionarios: 40, cidade: 'SP' },
+      { empresa: 'Acme Ltda', dominio: 'acme.net' },
+      { empresa: 'Acme Brasil Solucoes', dominio: 'acme.net' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
