@@ -12,7 +12,11 @@
  * @param {object} opcoes { delimitador }
  */
 export function lerCsv(texto, opcoes = {}) {
-  const linhas = dividirLinhas(texto.replace(/^﻿/, ''), opcoes.delimitador ?? detectarDelimitador(texto));
+  // Excel pode gravar uma primeira linha `sep=;` que nao faz parte dos dados.
+  texto = texto.replace(/^\uFEFF/, '');
+  const diretiva = /^sep=(.)\r?\n/i.exec(texto);
+  if (diretiva) texto = texto.slice(diretiva[0].length);
+  const linhas = dividirLinhas(texto, opcoes.delimitador ?? (diretiva ? diretiva[1] : detectarDelimitador(texto)));
   if (linhas.length === 0) return [];
 
   const cabecalho = linhas[0].map((coluna) => coluna.trim());

@@ -35,6 +35,7 @@ describe('lerCsv', () => {
     assert.equal(detectarDelimitador('a,b,c\n1,2,3'), ',');
     assert.equal(detectarDelimitador('"Nome, completo";email\n"Ana, Silva";a@x.com'), ';');
     assert.deepEqual(lerCsv('a;b\n1;2\n'), [{ a: '1', b: '2' }]);
+    assert.deepEqual(lerCsv('sep=;\na,b;c\n1;2\n'), [{ 'a,b': '1', c: '2' }]);
   });
 
   test('remove o BOM que o Excel escreve no inicio do arquivo', () => {
