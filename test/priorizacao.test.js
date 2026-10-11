@@ -246,6 +246,20 @@ describe('probabilidadeDeFechamento', () => {
   });
 });
 
+describe('probabilidadeDeFechamento com score invalido', () => {
+  test('lead sem score usa o piso do modulador em vez de NaN', () => {
+    const p = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(p));
+    assert.ok(p > 0 && p < 1);
+  });
+
+  test('score fora de 0-100 nao extrapola a faixa de +-25%', () => {
+    const base = { tier: 'A', estagio: 'novo' };
+    assert.equal(probabilidadeDeFechamento({ ...base, score: 250 }), probabilidadeDeFechamento({ ...base, score: 100 }));
+    assert.equal(probabilidadeDeFechamento({ ...base, score: -40 }), probabilidadeDeFechamento({ ...base, score: 0 }));
+  });
+});
+
 describe('previsaoDeFechamento', () => {
   test('lead mais avancado fecha antes', () => {
     const base = { setor: 'saas', funcionarios: 120 };
