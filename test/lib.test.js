@@ -105,8 +105,8 @@ describe('normalizacao para deduplicacao', () => {
     assert.equal(normalizarEmpresa('ACME S/A'), 'acme');
   });
 
-  test('normaliza dominio removendo protocolo, www e caminho', () => {
-    for (const entrada of ['https://www.acme.com.br/precos?x=1', 'WWW.ACME.COM.BR', 'acme.com.br']) {
+  test('normaliza dominio removendo protocolo, www, porta e caminho', () => {
+    for (const entrada of ['https://www.acme.com.br/precos?x=1', 'WWW.ACME.COM.BR', 'acme.com.br', 'http://acme.com.br:8080', 'acme.com.br#contato']) {
       assert.equal(normalizarDominio(entrada), 'acme.com.br');
     }
     assert.equal(normalizarDominio(null), '');
