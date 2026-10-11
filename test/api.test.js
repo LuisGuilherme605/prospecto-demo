@@ -33,6 +33,12 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
 
+  test('percent-encoding malformado vira erro 400', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/x/:nome', () => 'ok');
+    assert.throws(() => roteador.resolver('GET', '/api/x/%E0%A4%A'), (erro) => erro.status === 400);
+  });
+
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
     roteador.get('/api/x', () => 'get');

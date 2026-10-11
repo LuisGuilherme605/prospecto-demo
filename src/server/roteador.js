@@ -30,10 +30,19 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodificar(casamento[indice + 1]); });
       return { manipulador: rota.manipulador, parametros };
     }
     return null;
+  }
+}
+
+/** Percent-encoding malformado no caminho e erro do cliente (400), nao falha do servidor. */
+function decodificar(valor) {
+  try {
+    return decodeURIComponent(valor);
+  } catch {
+    throw new ErroHttp(400, 'Parametro de caminho invalido');
   }
 }
 
