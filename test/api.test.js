@@ -33,6 +33,12 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
 
+  test('parametro com percentual malformado nao lanca erro', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/x/:nome', () => 'ok');
+    assert.equal(roteador.resolver('GET', '/api/x/%E0%A4%A'), null);
+  });
+
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
     roteador.get('/api/x', () => 'get');
