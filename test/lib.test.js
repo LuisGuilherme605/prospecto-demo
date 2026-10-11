@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de quem entrou no grupo pelo nome tambem serve de chave', () => {
+    const resultado = deduplicar([
+      { empresa: 'Alfa Tech', setor: 'software', regiao: 'Sul', cidade: 'Curitiba', funcionarios: 80 },
+      { empresa: 'Alfa Tech Ltda', dominio: 'alfatech.com.br' },
+      { empresa: 'AT Sistemas', dominio: 'alfatech.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
