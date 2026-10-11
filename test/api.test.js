@@ -42,6 +42,15 @@ describe('Roteador', () => {
   test('rota inexistente devolve null', () => {
     assert.equal(new Roteador().resolver('GET', '/nada'), null);
   });
+
+  test('parametro com percent-encoding invalido vira 400 e nao 500', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/leads/:id', () => 'ok');
+    assert.throws(
+      () => roteador.resolver('GET', '/api/leads/%E0%A4%A'),
+      (erro) => erro.status === 400,
+    );
+  });
 });
 
 describe('Repositorio', () => {
