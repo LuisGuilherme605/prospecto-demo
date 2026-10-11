@@ -106,6 +106,9 @@ export function deduplicar(leads, limiar = 0.85) {
       // registro anterior desaparecer, senao os sinais dele somem na mesclagem.
       grupo.membros.push(lead);
       if (completude(lead) > completude(grupo.principal)) grupo.principal = lead;
+      // Lead que entrou por nome ou e-mail tambem registra o dominio, para que
+      // um terceiro com o mesmo dominio caia neste grupo e nao num novo.
+      if (dominio && !indicePorDominio.has(dominio)) indicePorDominio.set(dominio, grupo);
     } else {
       grupo = { principal: lead, membros: [lead] };
       grupos.push(grupo);

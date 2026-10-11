@@ -136,6 +136,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de lead que entrou no grupo por nome tambem junta o terceiro lead', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', setor: 'varejo', cidade: 'Recife', regiao: 'NE', contato: { nome: 'Ana', email: 'ana@acme.com.br', telefone: '8199999' } },
+      { empresa: 'Acme Ltda', dominio: 'acme.com.br' },
+      { empresa: 'Marca Nova', dominio: 'acme.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
