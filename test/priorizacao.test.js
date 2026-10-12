@@ -244,6 +244,12 @@ describe('probabilidadeDeFechamento', () => {
       }
     }
   });
+
+  test('lead sem score nao gera probabilidade NaN', () => {
+    const p = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(p));
+    assert.ok(p > 0 && p < 1);
+  });
 });
 
 describe('previsaoDeFechamento', () => {
