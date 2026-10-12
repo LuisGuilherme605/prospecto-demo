@@ -12,7 +12,7 @@ import assert from 'node:assert/strict';
 import { Repositorio } from '../src/store/repositorio.js';
 import { criarServidor } from '../src/server/servidor.js';
 import { gerarCarteira } from '../src/data/gerador.js';
-import { Roteador } from '../src/server/roteador.js';
+import { Roteador, ErroHttp } from '../src/server/roteador.js';
 
 const REF = new Date('2026-09-14T00:00:00.000Z');
 
@@ -32,6 +32,15 @@ describe('Roteador', () => {
     roteador.get('/api/x/:nome', (ctx) => ctx.parametros.nome);
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
+  it('responde 400 em vez de estourar quando o parametro tem % invalido', () => {
+    const roteador = new Roteador();
+    roteador.get('/api/x/:nome', (ctx) => ctx.parametros.nome);
+    assert.throws(
+      () => roteador.resolver('GET', '/api/x/%E0%A4%A'),
+      (erro) => erro instanceof ErroHttp && erro.status === 400,
+    );
+  });
+
 
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
