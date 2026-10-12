@@ -126,6 +126,17 @@ describe('distanciaEdicao', () => {
 });
 
 describe('deduplicar', () => {
+  test('dominio de quem entrou por nome tambem agrupa leads seguintes', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Solucoes', setor: 'saas', regiao: 'sudeste', cidade: 'Sao Paulo', funcionarios: 50,
+        contato: { nome: 'Ana', email: 'ana@acme.com.br', cargo: 'CTO' } },
+      { empresa: 'Acme Solucoes Ltda', dominio: 'acmesolucoes.com.br' },
+      { empresa: 'Grupo Outro Nome', dominio: 'acmesolucoes.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('junta registros com o mesmo dominio escrito de formas diferentes', () => {
     const resultado = deduplicar([
       { empresa: 'Acme Ltda', dominio: 'acme.com.br' },
