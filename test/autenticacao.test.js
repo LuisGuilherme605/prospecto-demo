@@ -122,6 +122,10 @@ describe('cookies e proxy', () => {
     assert.equal(lerCookie(undefined, 'x'), null);
   });
 
+  test('cookie com escape invalido e tratado como ausente', () => {
+    assert.equal(lerCookie('prospecto_sessao=%E0%A4%A', 'prospecto_sessao'), null);
+  });
+
   test('o cookie de sessao traz as protecoes obrigatorias', () => {
     const cookie = montarCookie('s', 'v', { maxIdadeSegundos: 3600, seguro: true });
     assert.match(cookie, /HttpOnly/);
