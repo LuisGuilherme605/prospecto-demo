@@ -60,6 +60,13 @@ describe('lerCsv', () => {
 });
 
 describe('escreverCsv', () => {
+  test('protege celula que contem o delimitador escolhido', () => {
+    const original = [{ empresa: 'Acme | Filial', cidade: 'Recife' }];
+    const csv = escreverCsv(original, { delimitador: '|' });
+    assert.equal(csv, 'empresa|cidade\n"Acme | Filial"|Recife\n');
+    assert.deepEqual(lerCsv(csv, { delimitador: '|' }), original);
+  });
+
   test('escapa nomes de coluna com virgula no cabecalho', () => {
     const original = [{ 'Nome, completo': 'Ana', email: 'a@x.com' }];
     assert.deepEqual(lerCsv(escreverCsv(original)), original);

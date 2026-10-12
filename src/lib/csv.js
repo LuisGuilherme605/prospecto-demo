@@ -92,7 +92,7 @@ export function escreverCsv(registros, opcoes = {}) {
     if (typeof valor === 'string' && /^[=+\-@\t]/.test(texto) && !/^[+-]?[\d.,]+$/.test(texto)) {
       texto = `'${texto}`;
     }
-    return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+    return /["\n\r;,]/.test(texto) || texto.includes(delimitador) ? `"${texto.replace(/"/g, '""')}"` : texto;
   };
 
   const linhas = [colunas.map(escapar).join(delimitador)];
