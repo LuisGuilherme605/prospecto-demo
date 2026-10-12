@@ -17,6 +17,10 @@ describe('lerCsv', () => {
     assert.deepEqual(lerCsv('a,b\n1,2\n'), [{ a: '1', b: '2' }]);
   });
 
+  test('ignora coluna sem nome no cabecalho', () => {
+    assert.deepEqual(lerCsv('a,b,\n1,2,3\n'), [{ a: '1', b: '2' }]);
+  });
+
   test('respeita virgula dentro de campo entre aspas', () => {
     assert.deepEqual(lerCsv('empresa,cidade\n"Acme, Ltda",Sao Paulo\n'),
       [{ empresa: 'Acme, Ltda', cidade: 'Sao Paulo' }]);

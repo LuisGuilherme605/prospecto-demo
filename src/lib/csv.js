@@ -21,6 +21,7 @@ export function lerCsv(texto, opcoes = {}) {
     .map((linha) => {
       const registro = {};
       cabecalho.forEach((coluna, indice) => {
+        if (coluna === '') return; // virgula sobrando no fim do cabecalho (export do Excel)
         registro[coluna] = linha[indice] ?? '';
       });
       return registro;
