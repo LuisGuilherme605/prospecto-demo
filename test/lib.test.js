@@ -201,6 +201,16 @@ describe('deduplicar', () => {
       { empresa: 'Y', contato: { email: 'b@acme.com' } }) >= 0.9);
   });
 
+  test('dominio de lead unido por nome tambem agrupa os proximos com o mesmo dominio', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Tecnologia', setor: 'software', regiao: 'Sudeste', cidade: 'Sao Paulo', funcionarios: 40, receitaAnual: 1000 },
+      { empresa: 'Acme Tecnologia Ltda', dominio: 'acme.com.br' },
+      { empresa: 'Outra Marca', dominio: 'www.acme.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('lista vazia nao quebra', () => {
     assert.deepEqual(deduplicar([]), { unicos: [], removidos: 0, grupos: [] });
   });
