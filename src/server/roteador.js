@@ -30,10 +30,19 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodificar(casamento[indice + 1]); });
       return { manipulador: rota.manipulador, parametros };
     }
     return null;
+  }
+}
+
+/** Decodifica um segmento da URL; sequencia `%` invalida e erro do cliente, nao do servidor. */
+function decodificar(segmento) {
+  try {
+    return decodeURIComponent(segmento);
+  } catch {
+    throw new ErroHttp(400, 'Parametro de caminho com codificacao invalida');
   }
 }
 

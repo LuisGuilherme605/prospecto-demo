@@ -33,6 +33,11 @@ describe('Roteador', () => {
     assert.equal(roteador.resolver('GET', '/api/x/a%20b').parametros.nome, 'a b');
   });
 
+  test('rejeita com 400 parametro de caminho com % invalido', () => {
+    const roteador = new Roteador().get('/api/x/:nome', () => 'ok');
+    assert.throws(() => roteador.resolver('GET', '/api/x/100%'), { status: 400 });
+  });
+
   test('distingue o metodo HTTP', () => {
     const roteador = new Roteador();
     roteador.get('/api/x', () => 'get');
