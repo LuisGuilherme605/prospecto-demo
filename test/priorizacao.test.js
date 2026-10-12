@@ -231,6 +231,11 @@ describe('probabilidadeDeFechamento', () => {
     assert.ok(probabilidadeDeFechamento({ ...comum, tier: 'A' }) > probabilidadeDeFechamento({ ...comum, tier: 'C' }));
   });
 
+  test('lead sem score nao gera NaN', () => {
+    const p = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(p) && p > 0 && p < 1);
+  });
+
   test('ganho vale 1 e perdido vale 0', () => {
     assert.equal(probabilidadeDeFechamento({ tier: 'A', score: 90, estagio: 'ganho' }), 1);
     assert.equal(probabilidadeDeFechamento({ tier: 'A', score: 90, estagio: 'perdido' }), 0);
