@@ -136,6 +136,15 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio que chega por um duplicado por nome tambem agrupa os proximos', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme', setor: 'saas', cidade: 'SP', regiao: 'SE' },
+      { empresa: 'Acme Ltda', dominio: 'acme.com' },
+      { empresa: 'Holding Zeta', dominio: 'acme.com' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
