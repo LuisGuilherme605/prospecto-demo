@@ -42,6 +42,11 @@ describe('Roteador', () => {
   test('rota inexistente devolve null', () => {
     assert.equal(new Roteador().resolver('GET', '/nada'), null);
   });
+
+  test('trata parametro com percent-encoding invalido como rota inexistente', () => {
+    const roteador = new Roteador().get('/leads/:id', () => {});
+    assert.equal(roteador.resolver('GET', '/leads/%E0%A4%A'), null);
+  });
 });
 
 describe('Repositorio', () => {

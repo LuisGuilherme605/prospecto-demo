@@ -30,7 +30,12 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      try {
+        rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      } catch {
+        // percent-encoding quebrado (ex.: /leads/%E0%A4): nao e rota valida, e nao erro do servidor
+        continue;
+      }
       return { manipulador: rota.manipulador, parametros };
     }
     return null;
