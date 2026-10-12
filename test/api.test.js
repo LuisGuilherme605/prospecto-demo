@@ -182,6 +182,13 @@ describe('API HTTP', () => {
     }
   });
 
+  test('GET /api/leads usa o padrao quando a paginacao nao e numerica', async () => {
+    const { dados } = await pegar('/api/leads?pagina=abc&porPagina=xyz');
+    assert.equal(dados.pagina, 1);
+    assert.equal(dados.porPagina, 50);
+    assert.equal(dados.itens.length, 50);
+  });
+
   test('GET /api/leads aplica os filtros', async () => {
     const { dados } = await pegar('/api/leads?tier=A&porPagina=100');
     assert.ok(dados.itens.every((l) => l.tier === 'A'));
