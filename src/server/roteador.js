@@ -5,6 +5,15 @@
  * pouco mais de uma duzia de rotas e um roteador honesto cabe em 60 linhas.
  */
 
+/** `%` solto no caminho faz decodeURIComponent lancar; isso e erro do cliente, nao do servidor. */
+function decodificar(valor) {
+  try {
+    return decodeURIComponent(valor);
+  } catch {
+    throw new ErroHttp(400, 'Parametro de caminho mal formado');
+  }
+}
+
 export class Roteador {
   #rotas = [];
 
@@ -30,7 +39,7 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodificar(casamento[indice + 1]); });
       return { manipulador: rota.manipulador, parametros };
     }
     return null;
