@@ -46,7 +46,9 @@ export function probabilidadeDeFechamento(lead) {
 
   const taxas = TAXAS_POR_TIER[lead.tier] ?? TAXAS_POR_TIER.D;
   const concluidas = new Set(ETAPAS_CONCLUIDAS[lead.estagio] ?? []);
-  const modulador = 0.75 + (lead.score / 100) * 0.5;
+  // Lead ainda sem score entra com o ponto medio, em vez de virar NaN na projecao.
+  const score = Math.min(100, Math.max(0, Number(lead.score) || 50));
+  const modulador = 0.75 + (score / 100) * 0.5;
 
   let probabilidade = 1;
   for (const etapa of ORDEM_ETAPAS) {

@@ -215,6 +215,13 @@ describe('resumirCarteira', () => {
 });
 
 describe('probabilidadeDeFechamento', () => {
+  test('lead sem score usa o ponto medio em vez de NaN', () => {
+    const semScore = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(semScore));
+    assert.equal(semScore, probabilidadeDeFechamento({ tier: 'B', estagio: 'novo', score: 50 }));
+  });
+
+
   test('avanca com o estagio do funil', () => {
     const base = { tier: 'A', score: 85, setor: 'saas', funcionarios: 120 };
     const estagios = ['novo', 'contatado', 'engajado', 'reuniao', 'oportunidade'];
