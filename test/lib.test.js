@@ -93,6 +93,11 @@ describe('escreverCsv', () => {
     assert.match(csv, /,-3\n$/);
   });
 
+  test('neutraliza formula tambem em lista de valores', () => {
+    const csv = escreverCsv([{ stack: ['=1+1', 'aws'] }]);
+    assert.match(csv, /'=1\+1\|aws/);
+  });
+
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });
