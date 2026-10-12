@@ -106,7 +106,8 @@ describe('normalizacao para deduplicacao', () => {
   });
 
   test('normaliza dominio removendo protocolo, www e caminho', () => {
-    for (const entrada of ['https://www.acme.com.br/precos?x=1', 'WWW.ACME.COM.BR', 'acme.com.br']) {
+    for (const entrada of ['https://www.acme.com.br/precos?x=1', 'WWW.ACME.COM.BR', 'acme.com.br',
+      'acme.com.br:8080/home', 'http://acme.com.br#contato', 'acme.com.br.']) {
       assert.equal(normalizarDominio(entrada), 'acme.com.br');
     }
     assert.equal(normalizarDominio(null), '');
