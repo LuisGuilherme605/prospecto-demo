@@ -12,6 +12,7 @@ export function normalizarEmpresa(nome) {
   return String(nome ?? '')
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .toLowerCase()
+    .replace(/\bs\.\s?a\b\.?/g, 'sa')
     .replace(/\b(ltda|me|epp|sa|s\/a|eireli|mei|inc|llc|corp|group|grupo)\b/g, '')
     .replace(/[^a-z0-9]+/g, '')
     .trim();
