@@ -151,6 +151,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 0);
   });
 
+  test('tambem trata msn e proton como provedor publico', () => {
+    const resultado = deduplicar([
+      { empresa: 'Mercearia Sol', contato: { email: 'a@proton.me' } },
+      { empresa: 'Estudio Lume', contato: { email: 'b@proton.me' } },
+      { empresa: 'Auto Pecas Norte', contato: { email: 'c@msn.com' } },
+      { empresa: 'Cafe do Largo', contato: { email: 'd@msn.com' } },
+    ]);
+    assert.equal(resultado.unicos.length, 4);
+  });
+
   test('preserva os sinais de todos os registros mesclados', () => {
     // O sinal de intencao e o dado mais valioso do lead: perder um por causa da
     // deduplicacao seria o pior efeito colateral possivel.

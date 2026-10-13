@@ -56,6 +56,7 @@ export function distanciaEdicao(a, b, limite = 3) {
 const PROVEDORES_PUBLICOS = new Set([
   'gmail.com', 'googlemail.com', 'hotmail.com', 'outlook.com', 'live.com',
   'yahoo.com', 'yahoo.com.br', 'icloud.com', 'uol.com.br', 'bol.com.br', 'terra.com.br',
+  'msn.com', 'proton.me', 'protonmail.com', 'gmx.com',
 ]);
 
 /**
