@@ -251,6 +251,13 @@ describe('createRng', () => {
     assert.ok(raros > 700 && raros < 1300, `esperava ~1000 ocorrencias raras, veio ${raros}`);
   });
 
+  test('weighted nunca sorteia entrada com peso zero', () => {
+    const rng = createRng('peso-zero');
+    for (let i = 0; i < 5_000; i += 1) {
+      assert.equal(rng.weighted([{ value: 'nunca', weight: 0 }, { value: 'sempre', weight: 3 }]), 'sempre');
+    }
+  });
+
   test('sample nao repete itens', () => {
     const itens = Array.from({ length: 20 }, (_, i) => i);
     const amostra = createRng('amostra').sample(itens, 8);
