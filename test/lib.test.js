@@ -93,6 +93,11 @@ describe('escreverCsv', () => {
     assert.match(csv, /,-3\n$/);
   });
 
+  test('nao altera telefone com DDI, mas continua barrando formula com letra', () => {
+    const csv = escreverCsv([{ fone: '+55 (61) 99873-0501', f: '+SOMA(A1)' }]);
+    assert.match(csv, /^fone,f\n\+55 \(61\) 99873-0501,'\+SOMA\(A1\)\n$/);
+  });
+
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });

@@ -88,8 +88,9 @@ export function escreverCsv(registros, opcoes = {}) {
     if (valor === null || valor === undefined) return '';
     let texto = Array.isArray(valor) ? valor.join('|') : String(valor);
     // Excel e Sheets executam celula que comeca com = + - @ como formula; lead
-    // importado de fora pode trazer isso no nome da empresa. Numeros ficam como estao.
-    if (typeof valor === 'string' && /^[=+\-@\t]/.test(texto) && !/^[+-]?[\d.,]+$/.test(texto)) {
+    // importado de fora pode trazer isso no nome da empresa. Numeros e telefones
+    // (+55 (61) 99999-0000) ficam como estao: sem letra nao ha como chamar funcao.
+    if (typeof valor === 'string' && /^[=+\-@\t]/.test(texto) && !/^[+-]?[\d\s().,-]+$/.test(texto)) {
       texto = `'${texto}`;
     }
     return /["\n\r]|[;,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
