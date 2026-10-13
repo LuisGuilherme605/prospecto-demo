@@ -142,6 +142,16 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio que entrou no grupo por casamento de nome tambem agrupa os proximos', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Tecnologia', setor: 'saas', cidade: 'SP', funcionarios: 40, regiao: 'sudeste' },
+      { empresa: 'Acme Tecnologia Ltda', dominio: 'acmetec.com.br' },
+      { empresa: 'AT Sistemas', dominio: 'www.acmetec.com.br' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+    assert.equal(resultado.removidos, 2);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
