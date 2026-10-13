@@ -112,6 +112,11 @@ describe('normalizacao para deduplicacao', () => {
     assert.equal(normalizarDominio(null), '');
   });
 
+  test('normaliza dominio com usuario na url e ponto final', () => {
+    assert.equal(normalizarDominio('https://joao@acme.com.br/'), 'acme.com.br');
+    assert.equal(normalizarDominio('acme.com.br.'), 'acme.com.br');
+  });
+
   test('ignora porta e fragmento ao comparar dominios', () => {
     for (const entrada of ['acme.com.br:8080', 'https://acme.com.br#contato', 'acme.com.br?ref=x']) {
       assert.equal(normalizarDominio(entrada), 'acme.com.br');

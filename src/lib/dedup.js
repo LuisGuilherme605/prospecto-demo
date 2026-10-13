@@ -17,7 +17,7 @@ export function normalizarEmpresa(nome) {
     .trim();
 }
 
-/** Normaliza dominio: tira protocolo, `www.`, porta, caminho e fragmento. */
+/** Normaliza dominio: tira protocolo, usuario, `www.`, porta, caminho, fragmento e ponto final. */
 export function normalizarDominio(valor) {
   if (!valor) return '';
   return String(valor)
@@ -25,7 +25,9 @@ export function normalizarDominio(valor) {
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')
     .split(/[/?#]/)[0]
-    .replace(/:\d+$/, '');
+    .replace(/^[^@]*@/, '')
+    .replace(/:\d+$/, '')
+    .replace(/\.+$/, '');
 }
 
 /**
