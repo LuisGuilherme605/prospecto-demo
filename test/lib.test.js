@@ -117,6 +117,10 @@ describe('normalizacao para deduplicacao', () => {
       assert.equal(normalizarDominio(entrada), 'acme.com.br');
     }
   });
+
+  test('ignora ponto final no dominio', () => {
+    assert.equal(normalizarDominio('www.acme.com.br.'), 'acme.com.br');
+  });
 });
 
 describe('distanciaEdicao', () => {
