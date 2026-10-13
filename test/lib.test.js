@@ -339,3 +339,11 @@ describe('gerarCarteira', () => {
     assert.ok(semTelefone > 0 && semTelefone < leads.length, 'a cobertura de canais deveria variar');
   });
 });
+
+describe('barra', () => {
+  test('valor acima do maximo nao passa do tamanho', async () => {
+    const { barra } = await import('../src/lib/terminal.js');
+    const semCor = barra(250, 100, 10).replace(/\x1b\[\d+m/g, '');
+    assert.equal(semCor, '#'.repeat(10));
+  });
+});

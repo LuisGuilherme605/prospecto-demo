@@ -52,7 +52,7 @@ export function tabela(colunas, linhas) {
 
 /** Barra horizontal para visualizar proporcao no terminal. */
 export function barra(valor, maximo, tamanho = 24) {
-  const preenchido = maximo > 0 ? Math.round((valor / maximo) * tamanho) : 0;
+  const preenchido = maximo > 0 ? Math.min(tamanho, Math.round((valor / maximo) * tamanho)) : 0;
   return '#'.repeat(Math.max(0, preenchido)) + cor.cinza('.'.repeat(Math.max(0, tamanho - preenchido)));
 }
 
