@@ -207,6 +207,15 @@ describe('deduplicar', () => {
       { empresa: 'Y', contato: { email: 'b@acme.com' } }) >= 0.9);
   });
 
+  test('dominio de quem entrou no grupo por nome tambem passa a agrupar', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Tecnologia', setor: 'saas', regiao: 'sudeste', cidade: 'Sao Paulo', contato: { email: 'a@acme.com.br', nome: 'Ana', cargo: 'CTO' } },
+      { empresa: 'Acme Tecnologia Ltda', dominio: 'acme.com.br' },
+      { empresa: 'Acme Brasil', dominio: 'https://www.acme.com.br/contato' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('lista vazia nao quebra', () => {
     assert.deepEqual(deduplicar([]), { unicos: [], removidos: 0, grupos: [] });
   });

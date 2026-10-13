@@ -105,6 +105,8 @@ export function deduplicar(leads, limiar = 0.85) {
       // O grupo guarda todos os membros: trocar o sobrevivente nao pode fazer o
       // registro anterior desaparecer, senao os sinais dele somem na mesclagem.
       grupo.membros.push(lead);
+      // Quem entrou por nome pode trazer um dominio que o principal nao tem.
+      if (dominio && !indicePorDominio.has(dominio)) indicePorDominio.set(dominio, grupo);
       if (completude(lead) > completude(grupo.principal)) grupo.principal = lead;
     } else {
       grupo = { principal: lead, membros: [lead] };
