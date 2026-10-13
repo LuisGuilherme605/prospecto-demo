@@ -312,3 +312,11 @@ describe('projetarPipeline', () => {
     assert.equal(p.meta.leadsAdicionaisNecessarios, 0);
   });
 });
+
+describe('probabilidadeDeFechamento sem score', () => {
+  test('lead sem score usa a media em vez de devolver NaN', () => {
+    const p = probabilidadeDeFechamento({ tier: 'B', estagio: 'novo' });
+    assert.ok(Number.isFinite(p));
+    assert.ok(p > 0 && p < 1);
+  });
+});
