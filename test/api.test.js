@@ -204,6 +204,14 @@ describe('API HTTP', () => {
     assert.match(dados.erro, /nao encontrado/);
   });
 
+  test('GET /api/leads ignora paginacao nao numerica', async () => {
+    const { status, dados } = await pegar('/api/leads?pagina=abc&porPagina=xyz');
+    assert.equal(status, 200);
+    assert.equal(dados.pagina, 1);
+    assert.equal(dados.porPagina, 50);
+    assert.equal(dados.itens.length, 50);
+  });
+
   test('GET /api/fila respeita a capacidade', async () => {
     const { dados } = await pegar('/api/fila?capacidade=12');
     assert.ok(dados.length <= 12);

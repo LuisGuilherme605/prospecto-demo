@@ -18,6 +18,13 @@ import { escreverCsv } from '../lib/csv.js';
 
 const ESTAGIOS_VALIDOS = new Set(ESTAGIOS);
 
+/** Le um numero da query limitado a [min, max]; valor ausente ou nao numerico cai no padrao. */
+function numeroDaQuery(valor, padrao, min, max = Infinity) {
+  const numero = Number(valor ?? padrao);
+  if (!Number.isFinite(numero)) return padrao;
+  return Math.min(max, Math.max(min, numero));
+}
+
 /**
  * Cache da priorizacao.
  *
@@ -100,8 +107,8 @@ export function montarApi(repositorio, opcoes = {}) {
 
   roteador.get('/api/leads', (ctx) => {
     const { tier, estagio, setor, regiao, busca, acao } = ctx.query;
-    const pagina = Math.max(1, Number(ctx.query.pagina ?? 1));
-    const porPagina = Math.min(200, Math.max(1, Number(ctx.query.porPagina ?? 50)));
+    const pagina = Math.trunc(numeroDaQuery(ctx.query.pagina, 1, 1));
+    const porPagina = Math.trunc(numeroDaQuery(ctx.query.porPagina, 50, 1, 200));
 
     let lista = priorizados();
     if (tier) lista = lista.filter((l) => tier.split(',').includes(l.tier));
@@ -161,7 +168,7 @@ export function montarApi(repositorio, opcoes = {}) {
   }));
 
   roteador.get('/api/fila', (ctx) => {
-    const capacidade = Math.min(200, Math.max(1, Number(ctx.query.capacidade ?? 25)));
+    const capacidade = Math.trunc(numeroDaQuery(ctx.query.capacidade, 25, 1, 200));
     return montarFilaDoDia(priorizados(), { capacidade }).map(resumirLead);
   });
 
@@ -169,8 +176,8 @@ export function montarApi(repositorio, opcoes = {}) {
 
   roteador.get('/api/previsao', (ctx) => projetarPipeline(priorizados(), {
     referencia: agora(),
-    horizonteDias: Number(ctx.query.horizonte ?? 90),
-    meta: Number(ctx.query.meta ?? 0),
+    horizonteDias: numeroDaQuery(ctx.query.horizonte, 90, 1),
+    meta: numeroDaQuery(ctx.query.meta, 0, 0),
   }));
 
   roteador.get('/api/exportar.csv', (ctx) => {
