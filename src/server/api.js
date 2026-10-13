@@ -18,6 +18,12 @@ import { escreverCsv } from '../lib/csv.js';
 
 const ESTAGIOS_VALIDOS = new Set(ESTAGIOS);
 
+/** Le um inteiro da query string; valor ausente ou nao numerico cai no padrao. */
+function inteiroDaQuery(valor, padrao, minimo, maximo = Infinity) {
+  const numero = Math.trunc(Number(valor));
+  return Number.isFinite(numero) ? Math.min(maximo, Math.max(minimo, numero)) : padrao;
+}
+
 /**
  * Cache da priorizacao.
  *
@@ -100,8 +106,8 @@ export function montarApi(repositorio, opcoes = {}) {
 
   roteador.get('/api/leads', (ctx) => {
     const { tier, estagio, setor, regiao, busca, acao } = ctx.query;
-    const pagina = Math.max(1, Number(ctx.query.pagina ?? 1));
-    const porPagina = Math.min(200, Math.max(1, Number(ctx.query.porPagina ?? 50)));
+    const pagina = inteiroDaQuery(ctx.query.pagina, 1, 1);
+    const porPagina = inteiroDaQuery(ctx.query.porPagina, 50, 1, 200);
 
     let lista = priorizados();
     if (tier) lista = lista.filter((l) => tier.split(',').includes(l.tier));
@@ -161,7 +167,7 @@ export function montarApi(repositorio, opcoes = {}) {
   }));
 
   roteador.get('/api/fila', (ctx) => {
-    const capacidade = Math.min(200, Math.max(1, Number(ctx.query.capacidade ?? 25)));
+    const capacidade = inteiroDaQuery(ctx.query.capacidade, 25, 1, 200);
     return montarFilaDoDia(priorizados(), { capacidade }).map(resumirLead);
   });
 
