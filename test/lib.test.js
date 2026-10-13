@@ -93,6 +93,10 @@ describe('escreverCsv', () => {
     assert.match(csv, /,-3\n$/);
   });
 
+  test('neutraliza celula que comeca com retorno de carro', () => {
+    assert.match(escreverCsv([{ obs: '\r=1+1' }]), /"'\r=1\+1"/);
+  });
+
   test('respeita a ordem de colunas quando informada', () => {
     assert.match(escreverCsv([{ b: 2, a: 1 }], { colunas: ['a', 'b'] }), /^a,b\n1,2/);
   });
