@@ -261,6 +261,12 @@ describe('createRng', () => {
     assert.equal(createRng('x').sample([1, 2, 3], 10).length, 3);
   });
 
+  test('sample com quantidade negativa ou invalida devolve lista vazia', () => {
+    const rng = createRng('x');
+    assert.deepEqual(rng.sample([1, 2, 3], -2), []);
+    assert.deepEqual(rng.sample([1, 2, 3], Number.NaN), []);
+  });
+
   test('shuffle preserva o conjunto e nao altera o original', () => {
     const original = [1, 2, 3, 4, 5];
     const copia = [...original];
