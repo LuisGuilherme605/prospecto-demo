@@ -65,7 +65,7 @@ export function createRng(seed) {
       let roll = next() * total;
       for (const entry of entries) {
         roll -= entry.weight;
-        if (roll <= 0) return entry.value;
+        if (roll < 0) return entry.value;
       }
       return entries[entries.length - 1].value;
     },
