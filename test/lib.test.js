@@ -117,6 +117,11 @@ describe('normalizacao para deduplicacao', () => {
       assert.equal(normalizarDominio(entrada), 'acme.com.br');
     }
   });
+
+  test('ignora o ponto final de dominio absoluto', () => {
+    assert.equal(normalizarDominio('https://www.acme.com.br./contato'), 'acme.com.br');
+    assert.equal(normalizarDominio('acme.com.br.:443'), 'acme.com.br');
+  });
 });
 
 describe('distanciaEdicao', () => {
