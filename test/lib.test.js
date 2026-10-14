@@ -142,6 +142,15 @@ describe('deduplicar', () => {
     assert.equal(resultado.removidos, 1);
   });
 
+  test('dominio de um membro agrupado por nome tambem vale para os proximos leads', () => {
+    const resultado = deduplicar([
+      { empresa: 'Acme Tech', setor: 'saas', cidade: 'Recife', regiao: 'NE', funcionarios: 40, contato: { nome: 'Ana', email: 'ana@acmetech.io' } },
+      { empresa: 'Acme Tech', dominio: 'acmetech.io' },
+      { empresa: 'Holding Acme', dominio: 'acmetech.io' },
+    ]);
+    assert.equal(resultado.unicos.length, 1);
+  });
+
   test('nao junta empresas diferentes so porque usam e-mail do mesmo provedor', () => {
     const resultado = deduplicar([
       { empresa: 'Padaria Central', contato: { email: 'dono@gmail.com' } },
