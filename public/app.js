@@ -33,7 +33,7 @@ function el(tag, props = {}, ...filhos) {
     if (valor === null || valor === undefined || valor === false) continue;
     if (chave === 'class') node.className = valor;
     else if (chave === 'texto') node.textContent = valor;
-    else if (chave === 'html') node.innerHTML = valor;
+    else if (chave === 'html') { /* innerHTML desativado por seguranca */ }
     else if (chave.startsWith('on')) node.addEventListener(chave.slice(2).toLowerCase(), valor);
     else node.setAttribute(chave, valor === true ? '' : String(valor));
   }

@@ -202,7 +202,7 @@ async function tratarApi(req, res, url, roteador) {
     res.writeHead(200, {
       ...CABECALHOS_SEGURANCA,
       'content-type': tipo,
-      ...(arquivo ? { 'content-disposition': `attachment; filename="${arquivo}"` } : {}),
+      ...(arquivo ? { 'content-disposition': `attachment; filename="${arquivo.replace(/["\\\r\n]/g, '_')}"` } : {}),
     });
     return res.end(conteudo);
   }
@@ -236,16 +236,29 @@ function lerCorpo(req) {
   return new Promise((resolver, rejeitar) => {
     const pedacos = [];
     let tamanho = 0;
-    req.on('data', (pedaco) => {
+    let encerrado = false;
+
+    const limpar = () => {
+      if (encerrado) return;
+      encerrado = true;
+      req.removeListener('data', aoDado);
+      req.removeListener('end', aoFim);
+      req.removeListener('error', rejeitar);
+    };
+
+    const aoDado = (pedaco) => {
       tamanho += pedaco.length;
       if (tamanho > LIMITE_CORPO) {
+        limpar();
         rejeitar(new ErroHttp(413, 'Corpo da requisicao excede o limite de 2 MB'));
         req.destroy();
         return;
       }
       pedacos.push(pedaco);
-    });
-    req.on('end', () => {
+    };
+
+    const aoFim = () => {
+      limpar();
       const texto = Buffer.concat(pedacos).toString('utf8');
       if (texto.trim() === '') return resolver(null);
       try {
@@ -253,8 +266,11 @@ function lerCorpo(req) {
       } catch {
         rejeitar(new ErroHttp(400, 'Corpo da requisicao nao e um JSON valido'));
       }
-    });
-    req.on('error', rejeitar);
+    };
+
+    req.on('data', aoDado);
+    req.on('end', aoFim);
+    req.on('error', (erro) => { limpar(); rejeitar(erro); });
   });
 }
 

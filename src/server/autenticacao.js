@@ -38,12 +38,17 @@ const base64url = (buffer) => Buffer.from(buffer).toString('base64url');
  * tentativas por minuto contra um alvo unico. O atraso cresce com as falhas e
  * zera no acerto.
  */
-function criarLimitador({ maxTentativas = 8, janelaMs = 15 * 60_000 } = {}) {
+function criarLimitador({ maxTentativas = 8, janelaMs = 15 * 60_000, maxEntradas = 10_000 } = {}) {
   const tentativas = new Map();
 
   const limpar = (agora) => {
     for (const [chave, registro] of tentativas) {
       if (agora - registro.primeira > janelaMs) tentativas.delete(chave);
+    }
+    if (tentativas.size > maxEntradas) {
+      const excesso = tentativas.size - maxEntradas;
+      const chaves = tentativas.keys();
+      for (let i = 0; i < excesso; i += 1) tentativas.delete(chaves.next().value);
     }
   };
 

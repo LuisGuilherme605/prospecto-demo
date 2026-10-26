@@ -30,7 +30,10 @@ export class Roteador {
       const casamento = rota.regex.exec(caminho);
       if (!casamento) continue;
       const parametros = {};
-      rota.nomes.forEach((nome, indice) => { parametros[nome] = decodeURIComponent(casamento[indice + 1]); });
+      rota.nomes.forEach((nome, indice) => {
+        try { parametros[nome] = decodeURIComponent(casamento[indice + 1]); }
+        catch { parametros[nome] = casamento[indice + 1]; }
+      });
       return { manipulador: rota.manipulador, parametros };
     }
     return null;

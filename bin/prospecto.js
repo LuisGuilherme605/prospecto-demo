@@ -186,7 +186,7 @@ async function semear(opcoes, _argumento, silencioso = false) {
     const quantidade = Number(opcoes.quantidade);
     const leads = gerarCarteira({ quantidade, semente: opcoes.semente });
     repositorio.salvarLeads(leads);
-    if (!silencioso || true) {
+    if (!silencioso) {
       console.log(cor.verde(`${quantidade} leads gerados com a semente "${opcoes.semente}" em ${opcoes.banco}`));
     }
   });

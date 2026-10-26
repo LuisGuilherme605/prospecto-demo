@@ -58,16 +58,18 @@ export class Repositorio {
     if (filtros.estagio) { condicoes.push('estagio = $estagio'); parametros.estagio = filtros.estagio; }
     if (filtros.regiao) { condicoes.push('regiao = $regiao'); parametros.regiao = filtros.regiao; }
     if (filtros.busca) {
-      condicoes.push('(LOWER(empresa) LIKE $busca OR LOWER(COALESCE(dominio, %s)) LIKE $busca)'.replace('%s', "''"));
+      condicoes.push("(LOWER(empresa) LIKE $busca OR LOWER(COALESCE(dominio, '')) LIKE $busca)");
       parametros.busca = `%${String(filtros.busca).toLowerCase()}%`;
     }
 
     const onde = condicoes.length > 0 ? `WHERE ${condicoes.join(' AND ')}` : '';
     const limite = Number.isFinite(filtros.limite) ? Math.min(filtros.limite, 5000) : 5000;
     const offset = Number.isFinite(filtros.offset) ? filtros.offset : 0;
+    parametros.$limite = limite;
+    parametros.$offset = offset;
 
     const linhas = this.#db
-      .prepare(`SELECT * FROM leads ${onde} ORDER BY empresa LIMIT ${limite} OFFSET ${offset}`)
+      .prepare(`SELECT * FROM leads ${onde} ORDER BY empresa LIMIT $limite OFFSET $offset`)
       .all(parametros);
     return linhas.map(paraLead);
   }
