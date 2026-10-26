@@ -31,7 +31,8 @@ function criarCache(repositorio) {
     obter(referencia) {
       const icp = repositorio.obterIcp();
       const partes = [icp.nome, icp.setoresAlvo, icp.composicao, icp.pesos, icp.tiers, icp.funcionariosIdeal];
-      const chave = `${repositorio.contarLeads()}:${JSON.stringify(partes)}:${referencia.toISOString().slice(0, 13)}`;
+      const ordenar = (_, v) => (v && typeof v === 'object' && !Array.isArray(v)) ? Object.fromEntries(Object.entries(v).sort()) : v;
+      const chave = `${repositorio.contarLeads()}:${JSON.stringify(partes, ordenar)}:${referencia.toISOString().slice(0, 13)}`;
       if (memoria && memoria.chave === chave) return memoria.valor;
       const valor = priorizar(repositorio.listarLeads(), icp, { referencia });
       memoria = { chave, valor };

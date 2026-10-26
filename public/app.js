@@ -44,14 +44,30 @@ function el(tag, props = {}, ...filhos) {
   return node;
 }
 
+function mostrarNotificacao(mensagem, tipo = 'erro') {
+  const existente = document.querySelector('.notificacao');
+  if (existente) existente.remove();
+
+  const nota = el('div', { class: `notificacao notificacao--${tipo}`, role: 'alert' },
+    el('span', { texto: mensagem }),
+    el('button', { class: 'notificacao-fechar', texto: '×', onclick: () => nota.remove() }));
+  document.body.append(nota);
+  setTimeout(() => nota.remove(), 6000);
+}
+
 async function api(caminho, opcoes = {}) {
-  const resposta = await fetch(caminho, {
-    headers: { 'content-type': 'application/json' },
-    ...opcoes,
-    body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined,
-  });
-  // Sessao expirada enquanto a aba estava aberta: mandar de volta ao login e
-  // preservar a pagina atual, para o usuario voltar exatamente onde estava.
+  let resposta;
+  try {
+    resposta = await fetch(caminho, {
+      headers: { 'content-type': 'application/json' },
+      ...opcoes,
+      body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined,
+    });
+  } catch (erro) {
+    mostrarNotificacao('Sem conexao com o servidor. Verifique sua rede.');
+    throw erro;
+  }
+
   if (resposta.status === 401) {
     const destino = encodeURIComponent(location.pathname + location.search);
     location.replace(`/login?destino=${destino}`);
@@ -587,6 +603,10 @@ function parametrosDeFiltro() {
 }
 
 async function carregarLeads() {
+  const corpo = $('#corpo-tabela');
+  corpo.replaceChildren(el('tr', {},
+    el('td', { colspan: '9' }, el('div', { class: 'carregando', texto: 'Carregando leads...' }))));
+
   try {
     if (estado.modoFila) {
       const fila = await api('/api/fila?capacidade=30');
@@ -603,12 +623,17 @@ async function carregarLeads() {
     }
     renderTabela();
   } catch (erro) {
-    $('#corpo-tabela').replaceChildren(el('tr', {},
+    corpo.replaceChildren(el('tr', {},
       el('td', { colspan: '9' }, el('div', { class: 'vazio', texto: erro.message }))));
   }
 }
 
 async function carregarPaineis() {
+  const indicadores = $('#indicadores');
+  if (indicadores.children.length === 0) {
+    indicadores.replaceChildren(el('div', { class: 'carregando', texto: 'Carregando painel...' }));
+  }
+
   const [resumo, previsao] = await Promise.all([
     api('/api/resumo'),
     api(`/api/previsao?meta=${estado.meta}`),

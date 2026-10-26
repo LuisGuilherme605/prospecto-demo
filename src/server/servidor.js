@@ -13,7 +13,7 @@ import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { montarApi } from './api.js';
 import { ErroHttp } from './roteador.js';
-import { criarAutenticacao, lerCookie, montarCookie, ehHttps, ipDoCliente } from './autenticacao.js';
+import { criarAutenticacao, criarLimitador, lerCookie, montarCookie, ehHttps, ipDoCliente } from './autenticacao.js';
 
 const RAIZ_PUBLICA = resolve(fileURLToPath(new URL('../../public', import.meta.url)));
 const LIMITE_CORPO = 2 * 1024 * 1024; // 2 MB: uma requisicao de API nao precisa de mais.
@@ -71,6 +71,8 @@ export function criarServidor(repositorio, opcoes = {}) {
     duracaoHoras: opcoes.duracaoSessaoHoras,
   });
 
+  const limitadorApi = criarLimitador({ maxTentativas: 60, janelaMs: 60_000 });
+
   return createServer(async (req, res) => {
     const inicio = process.hrtime.bigint();
     let url;
@@ -85,6 +87,18 @@ export function criarServidor(repositorio, opcoes = {}) {
 
       if (url.pathname.startsWith('/api/')) {
         if (!liberado(req, url, auth)) throw new ErroHttp(401, 'Sessao necessaria');
+
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+          const ip = ipDoCliente(req, confiarProxy);
+          const limite = limitadorApi.verificar(ip);
+          if (limite.bloqueado) {
+            res.writeHead(429, { ...CABECALHOS_SEGURANCA, 'content-type': 'application/json; charset=utf-8', 'retry-after': String(limite.esperarSegundos) });
+            res.end(JSON.stringify({ erro: 'Muitas requisicoes. Aguarde um momento.' }));
+            return;
+          }
+          limitadorApi.registrarFalha(ip);
+        }
+
         await tratarApi(req, res, url, roteador);
       } else {
         if (!liberado(req, url, auth)) return redirecionarParaLogin(res, url);
@@ -93,7 +107,6 @@ export function criarServidor(repositorio, opcoes = {}) {
     } catch (erro) {
       const status = erro instanceof ErroHttp ? erro.status : 500;
       if (status >= 500) console.error('[erro]', erro);
-      // Mensagem de erro interno nao vaza detalhe de implementacao para fora.
       responder(res, status, {
         erro: status >= 500 ? 'Erro interno do servidor' : erro.message,
         detalhes: status >= 500 ? null : (erro.detalhes ?? null),
@@ -220,10 +233,12 @@ async function servirEstatico(res, caminho) {
     const info = await stat(destino);
     if (!info.isFile()) throw new ErroHttp(404, 'Nao encontrado');
     const conteudo = await readFile(destino);
+    const ext = extname(destino);
+    const ehHtml = ext === '.html';
     res.writeHead(200, {
       ...CABECALHOS_SEGURANCA,
-      'content-type': TIPOS[extname(destino)] ?? 'application/octet-stream',
-      'cache-control': 'no-cache',
+      'content-type': TIPOS[ext] ?? 'application/octet-stream',
+      'cache-control': ehHtml ? 'no-cache' : 'public, max-age=3600, stale-while-revalidate=86400',
     });
     res.end(conteudo);
   } catch (erro) {
